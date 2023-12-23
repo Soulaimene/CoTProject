@@ -1,8 +1,8 @@
 package com.lifeguardian.lifeguardian.services;
 
 import com.lifeguardian.lifeguardian.models.User;
-import com.lifeguardian.lifeguardian.security.UserAlreadyExistsException;
-import com.lifeguardian.lifeguardian.security.UserNotFoundException;
+import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
+import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
 
 public interface UserService {
 
@@ -10,4 +10,13 @@ public interface UserService {
     User addUser(User user) throws  UserAlreadyExistsException  ;
     void delete(String email) throws UserNotFoundException;
 
+//    User findBy(String username);
+
+   // void removeToken(String token);
+
+    User getLoggedUser();
+
+    void removeToken(String token);
+
+    User findBy(String username, String password);
 }

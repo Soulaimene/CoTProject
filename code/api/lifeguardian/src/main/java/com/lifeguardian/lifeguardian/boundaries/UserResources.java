@@ -2,8 +2,8 @@ package com.lifeguardian.lifeguardian.boundaries;
 
 
 import com.lifeguardian.lifeguardian.models.User;
-import com.lifeguardian.lifeguardian.security.UserAlreadyExistsException;
-import com.lifeguardian.lifeguardian.security.UserNotFoundException;
+import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
+import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
 import com.lifeguardian.lifeguardian.services.UserServiceImpl;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -44,6 +44,7 @@ public class UserResources {
 
     }
 
+
     /**
      *
      * @param user
@@ -78,7 +79,7 @@ public class UserResources {
     public  Response addUser( @Valid User user){
         try {
             var createdUser = userService.addUser(user);
-            return Response.ok(createdUser.getForname() + createdUser.getSurname() + "is added successfully ").build();
+            return Response.ok(createdUser.getUsername() + createdUser.getSurname() + "is added successfully ").build();
         } catch(UserAlreadyExistsException e) {
             return Response.status(400 , e.getMessage()).build() ;
 
@@ -104,6 +105,7 @@ public class UserResources {
         }catch(UserNotFoundException e){
             return  Response.status(400 , e.getMessage()).build() ;
         }
+
 
     }
 
