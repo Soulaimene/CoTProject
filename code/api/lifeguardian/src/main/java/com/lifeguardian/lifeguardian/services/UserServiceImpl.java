@@ -2,7 +2,6 @@ package com.lifeguardian.lifeguardian.services;
 
 
 import com.lifeguardian.lifeguardian.exceptions.UserNotAuthorizedException;
-import com.lifeguardian.lifeguardian.models.Doctor;
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
@@ -14,10 +13,16 @@ import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.security.enterprise.SecurityContext;
 
 
 import java.security.Principal;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -39,8 +44,8 @@ public class UserServiceImpl implements UserService {
    * @apiNote THis methode is used to create Admin account
    */
   public User createUser(User user) {
-    if (userRepository.findById(user.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException(user.getEmail() + " is already exists");
+    if (userRepository.findById(user.getUsername()).isPresent()) {
+      throw new UserAlreadyExistsException(user.getUsername() + " is already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
     return userRepository.save(user);
@@ -58,24 +63,24 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   public User addUser(User user) {
-    if (userRepository.findById(user.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException(user.getEmail() + " already exists");
+    if (userRepository.findById(user.getUsername()).isPresent()) {
+      throw new UserAlreadyExistsException(user.getUsername() + " already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
     return userRepository.save(user);
   }
 
   /**
-   * @param email
+   * @param username
    * @throws UserNotFoundException
    * @apiNote this methode used by the admin to delete users
    */
   @Override
-  public void delete(String email) {
-    if (!userRepository.findById(email).isPresent()) {
-      throw new UserNotFoundException("there is  no user with email :" + email);
+  public void delete(String username) {
+    if (!userRepository.findById(username).isPresent()) {
+      throw new UserNotFoundException("there is  no user with username :" + username);
     }
-    userRepository.deleteById(email);
+    userRepository.deleteById(username);
   }
 
 //  @Override
@@ -85,13 +90,19 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User getLoggedUser() {
+
     final Principal principal = securityContext.getCallerPrincipal();
+    System.out.println("Principal Name: " + (principal != null ? principal.getName() : "null"));
+
     if (principal == null) {
       throw new UserNotAuthorizedException();
     }
-    return userRepository
-        .findById(principal.getName())
-        .orElseThrow(() -> new UserNotFoundException(principal.getName()));
+    return userRepository.findById(principal.getName())
+            .orElseThrow(() -> {
+              // Log when user not found
+              System.out.println("User not found for principal: " + principal.getName());
+              return new UserNotFoundException(principal.getName());
+            });
   }
 
   @Override
@@ -102,9 +113,9 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findBy(String email, String password) {
+  public User findBy(String username, String password) {
     final User user =
-        userRepository.findByEmail(email).orElseThrow(UserNotAuthorizedException::new);
+        userRepository.findByUsername(username).orElseThrow(UserNotAuthorizedException::new);
     System.out.println(argon2Utility.check(user.getPassword(), password.toCharArray()));
     if (argon2Utility.check(user.getPassword(), password.toCharArray())) {
 
@@ -112,6 +123,9 @@ public class UserServiceImpl implements UserService {
     }
     throw new UserNotAuthorizedException();
   }
+
+
+
 
 
 //  public void addDoctorToUser(String patientUsername, String doctorUsername) {

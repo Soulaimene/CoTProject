@@ -3,6 +3,7 @@ package com.lifeguardian.lifeguardian.boundaries;
 import com.lifeguardian.lifeguardian.models.Doctor;
 import com.lifeguardian.lifeguardian.models.HealthData;
 import com.lifeguardian.lifeguardian.models.User;
+import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.services.DoctorServiceImpl;
 import com.lifeguardian.lifeguardian.services.UserServiceImpl;
 import jakarta.ejb.Stateless;
@@ -13,6 +14,11 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import com.lifeguardian.lifeguardian.repository.UserRepository;
+import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
+import com.lifeguardian.lifeguardian.repository.DoctorRepository;
+
+
 
 import java.util.ArrayList;
 
@@ -23,12 +29,20 @@ public class RegistrationResource {
     private DoctorServiceImpl doctorService ;
     @Inject
     private UserServiceImpl userService ;
+    @Inject private UserRepository userRepository;
+    @Inject private DoctorRepository doctorRepository;
+
     @POST
     @Consumes("application/json")
     public Response registerUserOrDoctor(JsonObject json) {
         String role = json.getString("role");
+        String username = json.getString("username");
 
+        if (userRepository.existsById(username) || doctorRepository.existsById(username)) {
+            return Response.status(Response.Status.CONFLICT).entity("Username already exists").build();
+        }
         if ("Doctor".equalsIgnoreCase(role)) {
+
             Doctor doctor = new Doctor();
             // Populate Doctor object from JSON
             doctor.setUsername(json.getString("username"));

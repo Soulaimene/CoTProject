@@ -50,17 +50,17 @@ public class Oauth2Service {
 
         if (User.class.equals(userType)) {
 
-            User user = userSecurityService.findBy(request.getEmail(), request.getPassword());
-            return generateTokenMap(user, user.getEmail(), user.getUsername());
+            User user = userSecurityService.findBy(request.getUsername(), request.getPassword());
+            return generateTokenMap(user);
         } else if (Doctor.class.equals(userType)) {
-            Doctor doctor = doctorSecurityService.findBy(request.getEmail(), request.getPassword());
-            return generateTokenMap(doctor, doctor.getEmail(), doctor.getUsername());
+            Doctor doctor = doctorSecurityService.findBy(request.getUsername(), request.getPassword());
+            return generateTokenMap(doctor);
         } else {
             throw new IllegalArgumentException("Unsupported user type");
         }
     }
 
-    private <T> Map<String, Object> generateTokenMap(T user, String email, String username ) {
+    private <T> Map<String, Object> generateTokenMap(T user ) {
         final Token token = Token.generate();
         final String jwt = UserJWT.createToken(user, token, EXPIRES);
         AccessToken accessToken = new AccessToken(jwt, token.get(), EXPIRES);
@@ -68,8 +68,6 @@ public class Oauth2Service {
         HashMap<String, Object> map = new HashMap<>();
         map.put("accessToken", accessToken.getToken());
         map.put("refreshToken", refreshToken.getToken());
-        map.put("email", email);
-        map.put("fullname", username);
         return map;
     }
     public Map<String, Object>  refreshToken(Oauth2Request request, Class<?> userType) {
@@ -80,17 +78,17 @@ public class Oauth2Service {
             throw new ConstraintViolationException(violations);
         }
         if (User.class.equals(userType)) {
-            User user = userSecurityService.findBy(request.getEmail(), request.getPassword());
-            return refreshTokenMap(user, user.getEmail(), user.getUsername());
+            User user = userSecurityService.findBy(request.getUsername(), request.getPassword());
+            return refreshTokenMap(user);
         } else if (Doctor.class.equals(userType)) {
-            Doctor doctor = doctorSecurityService.findBy(request.getEmail(), request.getPassword());
-            return refreshTokenMap(doctor, doctor.getEmail(), doctor.getUsername());
+            Doctor doctor = doctorSecurityService.findBy(request.getUsername(), request.getPassword());
+            return refreshTokenMap(doctor);
         } else {
             throw new IllegalArgumentException("Unsupported user type");
         }
     }
 
-    private <T> Map<String, Object> refreshTokenMap(T user, String email, String username ) {
+    private <T> Map<String, Object> refreshTokenMap(T user) {
         final Token token = Token.generate();
         final String jwt = UserJWT.createToken(user, token, EXPIRES);
         AccessToken accessToken = new AccessToken(jwt, token.get(), EXPIRES);

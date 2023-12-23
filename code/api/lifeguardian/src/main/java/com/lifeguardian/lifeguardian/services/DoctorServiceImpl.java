@@ -78,8 +78,8 @@ public class DoctorServiceImpl implements DoctorService {
         removeTokenEvent.fire(removeToken);
     }
     @Override
-    public Doctor findBy(String email, String password) {
-        final Doctor doctor = doctorRepository.findByEmail(email)
+    public Doctor findBy(String username, String password) {
+        final Doctor doctor = doctorRepository.findByUsername(username)
                 .orElseThrow(UserNotAuthorizedException::new);
 
         String hashedPassword = argon2Utility.hash(password.toCharArray());
