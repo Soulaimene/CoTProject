@@ -3,12 +3,14 @@ package com.lifeguardian.lifeguardian.boundaries;
 
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
-import com.lifeguardian.lifeguardian.exceptions.UserNotAuthorizedException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 
 import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
+
 import com.lifeguardian.lifeguardian.services.UserServiceImpl;
+import com.lifeguardian.lifeguardian.services.CommonServiceImpl;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,6 +30,10 @@ public class UserResources {
 
     @Inject
     private UserServiceImpl userService ;
+
+    @Inject
+    private CommonServiceImpl commonServiceImpl ;
+
 
     /**
      *
@@ -126,7 +132,7 @@ public class UserResources {
             String token = authHeader.substring("Bearer ".length());
 
             // Use userService to get the current user
-            Map<String, String> currentUser = userService.getCurrentUser(token);
+            Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
 
             return Response.ok(currentUser).build();
         } else {

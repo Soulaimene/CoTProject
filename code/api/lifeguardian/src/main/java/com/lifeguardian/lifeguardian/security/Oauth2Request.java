@@ -14,9 +14,9 @@ public class Oauth2Request {
     @NotBlank
     public String grandType;
 
-    @JsonbProperty("email")
+    @JsonbProperty("username")
     @NotBlank(groups = {GenerateToken.class})
-    private String email;
+    private String username;
     @JsonbProperty("password")
     @NotBlank(groups = {GenerateToken.class})
     private String password;
@@ -36,8 +36,8 @@ public class Oauth2Request {
         }
     }
 
-    public void setUsername(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setPassword(String password) {
@@ -55,8 +55,8 @@ public class Oauth2Request {
         return null;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
     public String getPassword() {

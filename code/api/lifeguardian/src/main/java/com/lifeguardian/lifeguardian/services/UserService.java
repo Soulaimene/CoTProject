@@ -22,5 +22,4 @@ public interface UserService {
 
     User findBy(String username, String password);
 
-    Map<String, String> getCurrentUser(String token);
 }

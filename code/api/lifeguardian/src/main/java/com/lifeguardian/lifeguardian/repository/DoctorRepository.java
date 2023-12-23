@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 @Repository
 public interface DoctorRepository extends CrudRepository<Doctor, String> {
 
-    Optional<Doctor> findByEmail(String email);
+    Optional<Doctor> findByUsername(String username);
 
     Stream<Doctor> findAll();
 }

@@ -44,8 +44,8 @@ public class UserServiceImpl implements UserService {
    * @apiNote THis methode is used to create Admin account
    */
   public User createUser(User user) {
-    if (userRepository.findById(user.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException(user.getEmail() + " is already exists");
+    if (userRepository.findById(user.getUsername()).isPresent()) {
+      throw new UserAlreadyExistsException(user.getUsername() + " is already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
     return userRepository.save(user);
@@ -63,24 +63,24 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   public User addUser(User user) {
-    if (userRepository.findById(user.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException(user.getEmail() + " already exists");
+    if (userRepository.findById(user.getUsername()).isPresent()) {
+      throw new UserAlreadyExistsException(user.getUsername() + " already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
     return userRepository.save(user);
   }
 
   /**
-   * @param email
+   * @param username
    * @throws UserNotFoundException
    * @apiNote this methode used by the admin to delete users
    */
   @Override
-  public void delete(String email) {
-    if (!userRepository.findById(email).isPresent()) {
-      throw new UserNotFoundException("there is  no user with email :" + email);
+  public void delete(String username) {
+    if (!userRepository.findById(username).isPresent()) {
+      throw new UserNotFoundException("there is  no user with username :" + username);
     }
-    userRepository.deleteById(email);
+    userRepository.deleteById(username);
   }
 
 //  @Override
@@ -113,9 +113,9 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findBy(String email, String password) {
+  public User findBy(String username, String password) {
     final User user =
-        userRepository.findByEmail(email).orElseThrow(UserNotAuthorizedException::new);
+        userRepository.findByUsername(username).orElseThrow(UserNotAuthorizedException::new);
     System.out.println(argon2Utility.check(user.getPassword(), password.toCharArray()));
     if (argon2Utility.check(user.getPassword(), password.toCharArray())) {
 
@@ -124,36 +124,8 @@ public class UserServiceImpl implements UserService {
     throw new UserNotAuthorizedException();
   }
 
-  @Override
-  public Map<String, String> getCurrentUser(String token) {
-    // Decode the token
-    Map<String, Object> tokenInfo = decodeToken(token);
 
-    // Extract the username and roles
-    String username = (String) tokenInfo.get("jti");
-    List<String> roles = (List<String>) tokenInfo.get("roles");
 
-    // Prepare the response
-    Map<String, String> response = new HashMap<>();
-    response.put("username", username);
-    response.put("role", roles != null && !roles.isEmpty() ? roles.get(0) : "No role");
-
-    return response;
-  }
-  private Map<String, Object> decodeToken(String token) {
-    // Split the token into parts
-    String[] parts = token.split("\\.");
-    if (parts.length != 3) {
-      throw new IllegalArgumentException("Invalid token");
-    }
-
-    // Decode the payload part
-    String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
-
-    // Deserialize the JSON payload to a map
-    Jsonb jsonb = JsonbBuilder.create();
-    return jsonb.fromJson(payload, Map.class);
-  }
 
 
 //  public void addDoctorToUser(String patientUsername, String doctorUsername) {
