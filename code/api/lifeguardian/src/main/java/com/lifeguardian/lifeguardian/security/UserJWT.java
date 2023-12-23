@@ -38,6 +38,15 @@ public class UserJWT {
     public List<String> getRoles() {
         return roles != null ? roles : Collections.emptyList();
     }
+    private static <T> String getUsername(T user) {
+        if (user instanceof User) {
+            return ((User) user).getUsername();
+        } else if (user instanceof Doctor) {
+            return ((Doctor) user).getUsername();
+        } else {
+            throw new IllegalArgumentException("Unsupported user type");
+        }
+    }
 
     static <T> String createToken(T user, Token token, Duration duration) {
         Instant now = Instant.now();
@@ -45,7 +54,7 @@ public class UserJWT {
 
         try {
             JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder()
-                    .jwtID(user.toString()) // You may need to customize this // username , role
+                    .jwtID(getUsername(user)) // You may need to customize this // username , role
                     .issuer(ISSUER)
                     .expirationTime(Date.from(expiresAt))
                     .claim(ROLES, new ArrayList<>(getRoles(user)));
