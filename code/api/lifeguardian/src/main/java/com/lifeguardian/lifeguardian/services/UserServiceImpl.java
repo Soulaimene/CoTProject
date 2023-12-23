@@ -2,7 +2,6 @@ package com.lifeguardian.lifeguardian.services;
 
 
 import com.lifeguardian.lifeguardian.exceptions.UserNotAuthorizedException;
-import com.lifeguardian.lifeguardian.models.Doctor;
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
@@ -14,10 +13,16 @@ import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.security.enterprise.SecurityContext;
 
 
 import java.security.Principal;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -85,13 +90,19 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User getLoggedUser() {
+
     final Principal principal = securityContext.getCallerPrincipal();
+    System.out.println("Principal Name: " + (principal != null ? principal.getName() : "null"));
+
     if (principal == null) {
       throw new UserNotAuthorizedException();
     }
-    return userRepository
-        .findById(principal.getName())
-        .orElseThrow(() -> new UserNotFoundException(principal.getName()));
+    return userRepository.findById(principal.getName())
+            .orElseThrow(() -> {
+              // Log when user not found
+              System.out.println("User not found for principal: " + principal.getName());
+              return new UserNotFoundException(principal.getName());
+            });
   }
 
   @Override
@@ -111,6 +122,37 @@ public class UserServiceImpl implements UserService {
       return user;
     }
     throw new UserNotAuthorizedException();
+  }
+
+  @Override
+  public Map<String, String> getCurrentUser(String token) {
+    // Decode the token
+    Map<String, Object> tokenInfo = decodeToken(token);
+
+    // Extract the username and roles
+    String username = (String) tokenInfo.get("jti");
+    List<String> roles = (List<String>) tokenInfo.get("roles");
+
+    // Prepare the response
+    Map<String, String> response = new HashMap<>();
+    response.put("username", username);
+    response.put("role", roles != null && !roles.isEmpty() ? roles.get(0) : "No role");
+
+    return response;
+  }
+  private Map<String, Object> decodeToken(String token) {
+    // Split the token into parts
+    String[] parts = token.split("\\.");
+    if (parts.length != 3) {
+      throw new IllegalArgumentException("Invalid token");
+    }
+
+    // Decode the payload part
+    String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+
+    // Deserialize the JSON payload to a map
+    Jsonb jsonb = JsonbBuilder.create();
+    return jsonb.fromJson(payload, Map.class);
   }
 
 

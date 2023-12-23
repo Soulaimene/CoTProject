@@ -4,6 +4,8 @@ import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
 import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
 
+import java.util.Map;
+
 public interface UserService {
 
     User createUser(User user) throws UserAlreadyExistsException;
@@ -19,4 +21,6 @@ public interface UserService {
     void removeToken(String token);
 
     User findBy(String username, String password);
+
+    Map<String, String> getCurrentUser(String token);
 }
