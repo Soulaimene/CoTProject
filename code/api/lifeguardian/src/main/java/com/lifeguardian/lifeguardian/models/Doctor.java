@@ -62,6 +62,7 @@ public class Doctor implements Serializable {
         return role;
     }
 
+
     public List<String> getPendingPatients() {
         return pendingPatients;
     }

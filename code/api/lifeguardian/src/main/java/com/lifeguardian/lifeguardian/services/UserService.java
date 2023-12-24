@@ -20,6 +20,8 @@ public interface UserService {
 
     void removeToken(String token);
 
+
     User findBy(String username, String password);
 
+    void addPendingDoctor(User user, String doctorUSername);
 }

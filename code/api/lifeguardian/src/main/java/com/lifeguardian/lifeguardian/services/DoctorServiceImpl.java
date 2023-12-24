@@ -2,17 +2,21 @@ package com.lifeguardian.lifeguardian.services;
 
 import com.lifeguardian.lifeguardian.exceptions.UserNotAuthorizedException;
 import com.lifeguardian.lifeguardian.models.Doctor;
+import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
 import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
+import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.security.RemoveToken;
 import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
+import jakarta.ws.rs.core.Response;
 
 import java.security.Principal;
+import java.util.HashMap;
 
 @ApplicationScoped
 
@@ -29,6 +33,8 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Inject
     private Event<RemoveToken<Doctor>> removeTokenEvent;
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public Doctor createDoctor(Doctor doctor) throws UserAlreadyExistsException {
@@ -55,11 +61,6 @@ public class DoctorServiceImpl implements DoctorService {
         }
         doctorRepository.deleteById(email);
     }
-    @Override
-    public Doctor findBy(String username) {
-        return doctorRepository.findById(username)
-                .orElseThrow(() -> new UserNotAuthorizedException());
-    }
 
     @Override
     public Doctor getLoggedDoctor() {
@@ -82,11 +83,62 @@ public class DoctorServiceImpl implements DoctorService {
         final Doctor doctor = doctorRepository.findByUsername(username)
                 .orElseThrow(UserNotAuthorizedException::new);
 
-        String hashedPassword = argon2Utility.hash(password.toCharArray());
 
-        if (hashedPassword.equals(doctor.getPassword())) {
+
+        if (argon2Utility.check(doctor.getPassword(), password.toCharArray())) {
             return doctor;
         }
         throw new UserNotAuthorizedException();
     }
+    @Override
+    public void addPendingPatient(Doctor doctor, String patientUsername) {
+        // Fetch the doctor by username
+
+        // Modify the doctor's pending_patients list
+        doctor.getPendingPatients().add(patientUsername); // Assuming getPendingPatients() returns a modifiable list
+
+        // Save the changes back to the database
+        doctorRepository.save(doctor);
+    }
+    @Override
+    public Response processPendingUser(String doctorUsername, String patientUsername, String status) {
+        Doctor doctor = doctorRepository.findByUsername(doctorUsername)
+                .orElseThrow(() -> new UserNotFoundException("Doctor not found with username: " + doctorUsername));
+
+        User patient = userRepository.findByUsername(patientUsername)
+                .orElseThrow(() -> new UserNotFoundException("Patient not found with username: " + patientUsername));
+
+        // Check if the patient is in the doctor's pending list
+        if (!doctor.getPendingPatients().contains(patientUsername)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Patient not in pending list").build();
+        }
+
+        if ("accept".equalsIgnoreCase(status)) {
+            // Add the patient to the doctor's patients list and remove from pending
+            doctor.getPatients().add(patientUsername);
+            doctor.getPendingPatients().remove(patientUsername);
+
+            // Add the doctor to the user's doctors list and remove from pending
+            patient.getDoctors().add(doctorUsername);
+            patient.getPendingDoctors().remove(doctorUsername);
+
+            // Persist changes to the database
+            doctorRepository.save(doctor);
+            userRepository.save(patient);
+        } else {
+            // If not accepting, just remove from pending lists
+            doctor.getPendingPatients().remove(patientUsername);
+            patient.getPendingDoctors().remove(doctorUsername);
+
+            // Persist changes to the database
+            doctorRepository.save(doctor);
+            userRepository.save(patient);
+        }
+
+        // Return a success message
+        return Response.ok(new HashMap<String, String>() {{
+            put("message", "Patient " + (status.equalsIgnoreCase("accept") ? "added" : "removed") + " successfully");
+        }}).build();
+    }
+
 }
