@@ -7,22 +7,17 @@ import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
 import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
+
 import com.lifeguardian.lifeguardian.security.RemoveToken;
 import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
 import jakarta.security.enterprise.SecurityContext;
 
 
 import java.security.Principal;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -123,6 +118,8 @@ public class UserServiceImpl implements UserService {
     }
     throw new UserNotAuthorizedException();
   }
+
+
 
 
 

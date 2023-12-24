@@ -55,11 +55,6 @@ public class DoctorServiceImpl implements DoctorService {
         }
         doctorRepository.deleteById(email);
     }
-    @Override
-    public Doctor findBy(String username) {
-        return doctorRepository.findById(username)
-                .orElseThrow(() -> new UserNotAuthorizedException());
-    }
 
     @Override
     public Doctor getLoggedDoctor() {
@@ -82,9 +77,9 @@ public class DoctorServiceImpl implements DoctorService {
         final Doctor doctor = doctorRepository.findByUsername(username)
                 .orElseThrow(UserNotAuthorizedException::new);
 
-        String hashedPassword = argon2Utility.hash(password.toCharArray());
 
-        if (hashedPassword.equals(doctor.getPassword())) {
+
+        if (argon2Utility.check(doctor.getPassword(), password.toCharArray())) {
             return doctor;
         }
         throw new UserNotAuthorizedException();

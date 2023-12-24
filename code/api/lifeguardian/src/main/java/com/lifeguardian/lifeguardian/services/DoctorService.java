@@ -10,7 +10,6 @@ public interface DoctorService {
     Doctor addDoctor(Doctor doctor) throws  UserAlreadyExistsException  ;
     void delete(String email) throws UserNotFoundException;
 
-    Doctor findBy(String username);
 
     Doctor getLoggedDoctor();
 

@@ -20,6 +20,6 @@ public interface UserService {
 
     void removeToken(String token);
 
-    User findBy(String username, String password);
 
+    User findBy(String username, String password);
 }
