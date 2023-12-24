@@ -22,4 +22,6 @@ public interface UserService {
 
 
     User findBy(String username, String password);
+
+    void addPendingDoctor(User user, String doctorUSername);
 }

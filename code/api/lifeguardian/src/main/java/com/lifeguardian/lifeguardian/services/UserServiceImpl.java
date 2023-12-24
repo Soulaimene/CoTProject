@@ -118,6 +118,16 @@ public class UserServiceImpl implements UserService {
     }
     throw new UserNotAuthorizedException();
   }
+  @Override
+  public void addPendingDoctor(User user, String doctorUsername) {
+    // Fetch the doctor by username
+
+    // Modify the doctor's pending_patients list
+    user.getPendingDoctors().add(doctorUsername); // Assuming getPendingPatients() returns a modifiable list
+
+    // Save the changes back to the database
+    userRepository.save(user);
+  }
 
 
 

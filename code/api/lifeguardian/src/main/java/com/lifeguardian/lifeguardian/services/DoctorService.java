@@ -3,6 +3,9 @@ package com.lifeguardian.lifeguardian.services;
 import com.lifeguardian.lifeguardian.models.Doctor;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
 import com.lifeguardian.lifeguardian.exceptions.UserNotFoundException;
+import jakarta.ws.rs.core.Response;
+
+import java.util.Optional;
 
 public interface DoctorService {
 
@@ -16,4 +19,10 @@ public interface DoctorService {
     void removeToken(String token);
 
     Doctor findBy(String username, String password);
+
+
+
+    void addPendingPatient(Doctor doctor, String patientUsername);
+
+    Response processPendingUser(String doctorUsername, String patientUsername, String status);
 }
