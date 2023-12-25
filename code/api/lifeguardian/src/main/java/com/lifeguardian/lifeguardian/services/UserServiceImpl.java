@@ -43,6 +43,10 @@ public class UserServiceImpl implements UserService {
       throw new UserAlreadyExistsException(user.getUsername() + " is already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
+    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: ");
+
+    System.out.println("User: "+ user);
+
     return userRepository.save(user);
   }
 

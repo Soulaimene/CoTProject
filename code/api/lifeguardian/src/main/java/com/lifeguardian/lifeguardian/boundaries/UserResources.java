@@ -2,6 +2,8 @@ package com.lifeguardian.lifeguardian.boundaries;
 
 
 import com.lifeguardian.lifeguardian.models.Doctor;
+import com.lifeguardian.lifeguardian.models.HealthData;
+import com.lifeguardian.lifeguardian.models.SensorsData;
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.exceptions.UserAlreadyExistsException;
 import com.lifeguardian.lifeguardian.repository.DoctorRepository;
@@ -11,6 +13,7 @@ import com.lifeguardian.lifeguardian.services.DoctorService;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 
@@ -27,6 +30,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -140,102 +144,80 @@ public class UserResources {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred").build();
         }
     }
-
-    /**
-     *
-     * @param
-     * @return Response entity
-     * @throws  UserAlreadyExistsException
-     * @apiNote : used to  create admin account
-     */
-
-    @GET
-    @Path("/find")
-    @RolesAllowed("ADMIN")
-    public Response findUsers(){
-        System.out.println("find");
-        try {
-            return Response.ok(userService.findall()).build() ;
-        } catch (UserAlreadyExistsException e){
-            return  Response.status(400, e.getMessage()).build();
-        }
-
-
-    }
-
-
-    /**
-     *
-     * @param user
-     * @return Response entity
-     * @throws  UserAlreadyExistsException
-     * @apiNote : used to  create admin account
-     */
-
+//    expected response : {
+//        "bmi_status": "Normal",
+//            "blood_pressure_status": "Normal",
+//            "saturation_status": "Low",
+//            "heart_rate_status": "Moderate",
+//            "bmi": 24.163265306122447
+//    }
+    @Path("/getHealthStatus")
     @POST
-    @Path("/signup")
-    public Response createUser(@Valid User user){
-        System.out.println("signup");
-        try {
-            return Response.ok(userService.createUser(user)).build() ;
-        } catch (UserAlreadyExistsException e){
-            return  Response.status(400, e.getMessage()).build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHealthStatus(@Context HttpHeaders headers) {
+        String authHeader = headers.getRequestHeader("Authorization").get(0);
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring("Bearer ".length());
+
+            // Decode the token to get the current user's details
+            Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
+
+            String username = currentUser.get("username");
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+            HealthData healthData = user.getHealthData();
+            SensorsData sensorsData = user.getSensorsData();
+
+            // Calculate BMI
+            double heightInMeters = healthData.getHeight() / 100.0;
+            double bmi = healthData.getWeight() / (heightInMeters * heightInMeters);
+    
+            // Analyze BMI
+            JsonObject healthStatusJson = Json.createObjectBuilder()
+                    .add("bmi_status", analyzeBMI(bmi))
+                    .add("blood_pressure_status", analyzeBloodPressure(sensorsData.getApHi(), sensorsData.getApLo()))
+                    .add("saturation_status", analyzeSaturation(sensorsData.getSaturationData()))
+                    .add("heart_rate_status", analyzeHeartRate(sensorsData.getHeartRateData()))
+                    .add("bmi", bmi)
+                    .build();
+            return Response.ok(healthStatusJson).build();
+        }else {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
         }
 
 
+   
+
+    
     }
 
-    /**
-     *
-     * @param user
-     * @return status
-     * @apiNote  this methode is used by the admin to add users
-     */
-
-    @POST()
-    @Path("user/add")
-    @RolesAllowed("ADMIN")
-    public  Response addUser( @Valid User user){
-        try {
-            var createdUser = userService.addUser(user);
-            return Response.ok(createdUser.getUsername() + createdUser.getSurname() + "is added successfully ").build();
-        } catch(UserAlreadyExistsException e) {
-            return Response.status(400 , e.getMessage()).build() ;
-
-        }
-
+    private String analyzeHeartRate(int heartRate) {
+        if (heartRate < 60) return "Very Light";
+        if (heartRate < 100) return "Moderate";
+        if (heartRate < 120) return "Hard";
+        return "Maximum";
     }
 
-
-    /**
-     *
-     * @param email
-     * @return status
-     * @apiNote  this  methode is used by the Admin to delete users
-     */
-
-    @DELETE()
-    @Path("user/{email}")
-    @RolesAllowed("ADMIN")
-    public  Response deleteUser(@PathParam("email") String email){
-        try {
-            userService.delete(email);
-            return  Response.ok().build() ;
-        }catch(UserNotFoundException e){
-            return  Response.status(400 , e.getMessage()).build() ;
-        }
-
-
+    private String analyzeSaturation(int saturationData) {
+        return (saturationData < 95) ? "Low" : "Normal";
     }
 
+    private String analyzeBloodPressure(int apHi, int apLo) {
+        if (apHi >= 140 || apLo >= 90) return "High";
+        if (apHi <= 90 || apLo <= 60) return "Low";
+        return "Normal";
+    }
 
-
-
-
-
-
-
-
+    private String analyzeBMI(double bmi) {
+        if (bmi < 18.5) return "Underweight";
+        if (bmi < 24.9) return "Normal";
+        if (bmi < 29.9) return "Overweight";
+        return "Obese";
+    }
 
 
 }
+
+    
