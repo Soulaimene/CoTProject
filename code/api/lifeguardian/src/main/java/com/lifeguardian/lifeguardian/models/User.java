@@ -51,6 +51,8 @@ public class User   implements Serializable {
      */
     @Column("healthData")
     private HealthData healthData;
+    @Column("sensorsData")
+    private SensorsData sensorsData;
 
     public String getUsername() {
         return username;
@@ -76,6 +78,7 @@ public class User   implements Serializable {
     public HealthData getHealthData() {
         return healthData;
     }
+    public SensorsData getSensorsData() {return sensorsData;}
 
     public List<String> getPendingDoctors() {
         return pendingDoctors;
@@ -120,6 +123,8 @@ public class User   implements Serializable {
     public void setHealthData(HealthData healthData) {
         this.healthData = healthData;
     }
+    public void setSensorsData(SensorsData sensorsData) {this.sensorsData = sensorsData;}
+
 
     public void setPendingDoctors(List<String> pendingDoctors) {
         this.pendingDoctors = pendingDoctors;
@@ -172,6 +177,7 @@ public class User   implements Serializable {
                 ", password='" + password + '\'' +
                 ", emergencyContactEmail='" + emergencyContactEmail + '\'' +
                 ", healthData=" + healthData +
+                ", sensorsData=" + sensorsData +
                 ", pendingDoctors=" + pendingDoctors +
                 ", doctors=" + doctors +
                 ", prediction=" + prediction +
