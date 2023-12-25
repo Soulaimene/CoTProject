@@ -4,22 +4,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const userType = document.getElementById('userType').value;
 
         // Determine the role based on user selection
-        let role;
-        if (userType === 'Patient') {
-            role = 'User';
-        } else if (userType === 'Doctor') {
-            role = 'Doctor';
-        }
+
 
         // Make an HTTP request using Axios
-        axios.post('https://lifeguardian.local/lifeguardian/api/oauth2/login', {
+        axios.post("https://lifeguardian.local/lifeguardian/api/oauth2/login", {
             grand_type: 'PASSWORD',
             username: username,
             password: password,
-            role: role
         })
             .then(response => {
                 // Handle successful response
@@ -28,8 +21,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Save tokens in cookies
                 document.cookie = `accessToken=${accessToken}; path=/`;
                 document.cookie = `refreshToken=${refreshToken}; path=/`;
-
-                window.location.href = './index.html';
+                console.log("Connected")
+                // window.location.href = './index.html';
             })
             .catch(error => {
                 // Handle error
