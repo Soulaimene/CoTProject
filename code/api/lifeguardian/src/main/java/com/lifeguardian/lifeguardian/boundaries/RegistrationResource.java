@@ -2,6 +2,7 @@ package com.lifeguardian.lifeguardian.boundaries;
 
 import com.lifeguardian.lifeguardian.models.Doctor;
 import com.lifeguardian.lifeguardian.models.HealthData;
+import com.lifeguardian.lifeguardian.models.SensorsData;
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.services.DoctorServiceImpl;
@@ -55,12 +56,17 @@ public class RegistrationResource {
         } else if ("User".equalsIgnoreCase(role)) {
             User user = new User();
             HealthData healthData = new HealthData();
+            SensorsData sensorsData = new SensorsData();
+
             user.setEmail(json.getString("email"));
             user.setUsername(json.getString("username"));
             user.setSurname(json.getString("surname"));
             user.setEmergencyContactEmail(json.getString("emergencyContactEmail"));
             healthData.fromJson(json.getJsonObject("healthData"));
+            sensorsData.fromJson(json.getJsonObject("sensorsData"));
+
             user.setHealthData(healthData);
+            user.setSensorsData(sensorsData);
             user.setPassword(json.getString("password"));
             user.setPrediction(json.getInt("prediction"));
 
