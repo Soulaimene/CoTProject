@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = passwordInput.value;
         spinner.style.display = 'flex';
         // Make an HTTP request using Axios
-        axios.post("https://lifeguardian.local/lifeguardian/api/oauth2/login", {
+        axios.post("http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/oauth2/login", {
             grand_type: 'PASSWORD',
             username: username,
             password: password,
