@@ -209,7 +209,7 @@ public class UserResources {
 //            "bmi": 24.163265306122447
 //    }
     @Path("/getHealthStatus")
-    @POST
+    @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHealthStatus(@Context HttpHeaders headers) {
@@ -226,53 +226,20 @@ public class UserResources {
                     .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
             HealthData healthData = user.getHealthData();
             SensorsData sensorsData = user.getSensorsData();
-
-            // Calculate BMI
-            double heightInMeters = healthData.getHeight() / 100.0;
-            double bmi = healthData.getWeight() / (heightInMeters * heightInMeters);
-    
-            // Analyze BMI
-            JsonObject healthStatusJson = Json.createObjectBuilder()
-                    .add("bmi_status", analyzeBMI(bmi))
-                    .add("blood_pressure_status", analyzeBloodPressure(sensorsData.getApHi(), sensorsData.getApLo()))
-                    .add("saturation_status", analyzeSaturation(sensorsData.getSaturationData()))
-                    .add("heart_rate_status", analyzeHeartRate(sensorsData.getHeartRateData()))
-                    .add("bmi", bmi)
-                    .build();
-            return Response.ok(healthStatusJson).build();
+            return Response.ok(userService.CalculateHealthStatus(healthData,sensorsData)).build();
         }else {
             return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
         }
 
 
-   
 
-    
+
+
+
+
+
     }
 
-    private String analyzeHeartRate(int heartRate) {
-        if (heartRate < 60) return "Very Light";
-        if (heartRate < 100) return "Moderate";
-        if (heartRate < 120) return "Hard";
-        return "Maximum";
-    }
-
-    private String analyzeSaturation(int saturationData) {
-        return (saturationData < 95) ? "Low" : "Normal";
-    }
-
-    private String analyzeBloodPressure(int apHi, int apLo) {
-        if (apHi >= 140 || apLo >= 90) return "High";
-        if (apHi <= 90 || apLo <= 60) return "Low";
-        return "Normal";
-    }
-
-    private String analyzeBMI(double bmi) {
-        if (bmi < 18.5) return "Underweight";
-        if (bmi < 24.9) return "Normal";
-        if (bmi < 29.9) return "Overweight";
-        return "Obese";
-    }
 
 
 }

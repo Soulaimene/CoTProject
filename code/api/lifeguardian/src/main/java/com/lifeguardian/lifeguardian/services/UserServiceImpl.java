@@ -2,6 +2,8 @@ package com.lifeguardian.lifeguardian.services;
 
 
 import com.lifeguardian.lifeguardian.exceptions.UserNotAuthorizedException;
+import com.lifeguardian.lifeguardian.models.HealthData;
+import com.lifeguardian.lifeguardian.models.SensorsData;
 import com.lifeguardian.lifeguardian.models.User;
 import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
@@ -14,7 +16,10 @@ import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.security.enterprise.SecurityContext;
+import jakarta.ws.rs.core.Response;
 
 
 import java.security.Principal;
@@ -131,6 +136,48 @@ public class UserServiceImpl implements UserService {
 
     // Save the changes back to the database
     userRepository.save(user);
+  }
+  @Override
+  public JsonObject CalculateHealthStatus(HealthData healthData, SensorsData sensorsData){
+    // Calculate BMI
+    double heightInMeters = healthData.getHeight() / 100.0;
+    double bmi = healthData.getWeight() / (heightInMeters * heightInMeters);
+
+    // Analyze BMI
+    JsonObject healthStatusJson = Json.createObjectBuilder()
+            .add("bmi", bmi)
+            .add("bmi_status", analyzeBMI(bmi))
+            .add("blood_pressure_status", analyzeBloodPressure(sensorsData.getApHi(), sensorsData.getApLo()))
+            .add("saturation_status", analyzeSaturation(sensorsData.getSaturationData()))
+            .add("heart_rate_status", analyzeHeartRate(sensorsData.getHeartRateData()))
+            .build();
+    return (healthStatusJson);
+
+
+
+}
+  private String analyzeHeartRate(int heartRate) {
+    if (heartRate < 60) return "Very Light";
+    if (heartRate < 100) return "Moderate";
+    if (heartRate < 120) return "Hard";
+    return "Maximum";
+  }
+
+  private String analyzeSaturation(int saturationData) {
+    return (saturationData < 95) ? "Low" : "Normal";
+  }
+
+  private String analyzeBloodPressure(int apHi, int apLo) {
+    if (apHi >= 140 || apLo >= 90) return "High";
+    if (apHi <= 90 || apLo <= 60) return "Low";
+    return "Normal";
+  }
+
+  private String analyzeBMI(double bmi) {
+    if (bmi < 18.5) return "Underweight";
+    if (bmi < 24.9) return "Normal";
+    if (bmi < 29.9) return "Overweight";
+    return "Obese";
   }
 
 

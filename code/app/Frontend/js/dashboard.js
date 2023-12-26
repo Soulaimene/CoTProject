@@ -31,14 +31,18 @@ const setup = () => {
             'Content-Type': 'application/json'
         });
     }
-    let myPendingDoctors = [];  // Keep track of doctors with pending requests
+    let myPendingDoctors = [];
+    let globalUserInfo = null; // Keep track of doctors with pending requests
 
-    // Function to populate the dropdown with doctor usernames
-    function availableDoctors(doctors) {
+    // Function to see  the available  doctor usernames which are all the doctors except the user"s doctors'
+    async function availableDoctors(doctors) {
         const doctorList = document.getElementById('doctor-list');
 
         doctorList.innerHTML = '';  // Clear existing options
+        if (!myPendingDoctors) {
+            await loadDoctors();
 
+        }
         doctors.forEach(doctor => {
             const listItem = document.createElement('li');
             listItem.classList.add('flex', 'items-center', 'justify-between', 'mb-2');
@@ -72,9 +76,11 @@ const setup = () => {
             doctorList.appendChild(listItem);
         });
     }
-    function sendInvitation(doctorUsername, inviteButton) {
+    // Send the invitation to the doctor if the doctor accept he will no longer be in the available doctor
+    // but in the my doctor list instead
+    async function sendInvitation(doctorUsername, inviteButton) {
         // Execute the API to send the invitation
-        fetch(`http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/addDoctor/${doctorUsername}`, {
+        await fetch(`http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/addDoctor/${doctorUsername}`, {
             method: 'POST',
             headers: headers,
         })
@@ -98,7 +104,7 @@ const setup = () => {
     }
 
 
-
+// to display the error messages
         function createPopup(parentElement, message, bgColorClass) {
             const popup = document.createElement('div');
             popup.textContent = message;
@@ -128,6 +134,7 @@ const setup = () => {
         }
         button.disabled = isPending;
     }
+    // funtion to display all the doctors
     function AllMyDoctors(doctors) {
         const mydoctorList = document.getElementById('my-doctor-list');
 
@@ -148,13 +155,14 @@ const setup = () => {
             mydoctorList.appendChild(listItem);
         });
     }
+    // fetch all my doctors
 
-    function loadDoctors() {
+    async function loadDoctors() {
         // Endpoint for your API
         const apiURL = 'http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getMyDoctors';
 
         // Fetch the user's doctors
-        fetch(apiURL, {
+        await fetch(apiURL, {
             method: 'GET',
             headers: headers, // Ensure you include necessary headers for authorization if required
         })
@@ -168,6 +176,7 @@ const setup = () => {
                 const myDoctors = data.MyDoctors || [];
                  myPendingDoctors = data.MyDoctorsPending || [];
                 AllMyDoctors(myDoctors);
+                adjustHeight('my-doctor-list')
             })
             .catch(error => {
                 console.error('Error fetching doctor data:', error);
@@ -175,16 +184,9 @@ const setup = () => {
     }
 
 
-
-
-
-
-
-    // Fetch the list of doctors from the API
-
-    // Fetch the list of doctors from the API
-    function getAllDoctors() {
-        fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getAllDoctors', {
+    // Fetch the available doctors list
+    async function getAllDoctors() {
+        await fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getAllDoctors', {
             headers: headers,
             method: 'GET',
         })
@@ -202,16 +204,210 @@ const setup = () => {
             .then(doctors => {
                 // Doctors have been successfully retrieved
                 console.log('Doctors retrieved:', doctors);
-                availableDoctors(doctors);  // Populate dropdown with doctors
+                availableDoctors(doctors);
+                adjustHeight('doctor-list')// Populate dropdown with doctors
             })
             .catch(error => {
                 console.error('Error fetching doctors:', error);
             });
     }
 
+
+
+        function adjustHeight(listId) {
+            const maxItemsToShow = 5;
+            const listElement = document.getElementById(listId);
+            const items = listElement.querySelectorAll('li');
+
+            // Calculate the total height of the first 'maxItemsToShow' items
+            let totalHeight = 0;
+            for (let i = 0; i < Math.min(items.length, maxItemsToShow); i++) {
+                totalHeight += items[i].clientHeight + (i < maxItemsToShow - 1 ? 3 : 0); // Add space between items if not the last visible one
+            }
+
+            // Set the maximum height and enable scrolling if there are more than 'maxItemsToShow' items
+            listElement.style.maxHeight = `${totalHeight}px`;
+            listElement.style.overflowY = items.length > maxItemsToShow ? 'scroll' : 'hidden';
+        }
+
+// Call this function after the lists are populated
+
+
+    async function getUserInfo() {
+        try {
+            const response = await fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/me', {
+                headers: headers,
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            globalUserInfo = data;  // Set the global variable
+            console.log(data);
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+        }
+    }
+    async function fetchAndUpdateUserInfo() {
+
+            if (globalUserInfo == null) {
+                await getUserInfo();
+
+            }
+            // Update the username and role
+            document.getElementById('user-name').textContent = globalUserInfo.username ;
+            document.getElementById('user-role').textContent = globalUserInfo.role;
+
+            // Create initials from the username
+            const initials = globalUserInfo.username ? globalUserInfo.username.split(' ').map(n => n[0]).join('').toUpperCase() : '--';
+            document.getElementById('user-initials').textContent = initials;
+
+    }
+
+
+    // Function to fetch sensor data from the API and update the dashboard
+    async function updateSensorData() {
+        if (!globalUserInfo) {
+            await getUserInfo();
+        }
+        displaySensorData(globalUserInfo.sensorsData);
+    }
+
+// Function to display the sensor data on the dashboard
+    function displaySensorData({apHi, apLo, heartRateData, saturationData, temp}) {
+
+
+        // Update heart rate
+        const heartRateValueElement = document.querySelector('#heart-rate-value .text-2xl');
+        heartRateValueElement.textContent = heartRateData ;
+
+        // Update temperature
+        const temperatureValueElement = document.querySelector('#temperature-value .text-2xl');
+        temperatureValueElement.textContent = temp ;
+
+        // Update blood pressure (systolic/diastolic)
+        const bloodPressureValueElement = document.querySelector('#blood-pressure-value .text-2xl');
+        bloodPressureValueElement.textContent = `${apHi }/${apLo }`;
+
+        // Update oxygen level
+        const oxygenLevelValueElement = document.querySelector('#oxygen-level-value .text-2xl');
+        oxygenLevelValueElement.textContent = `${saturationData  }%`;
+
+        // Add similar updates for any other sensor data you want to display
+    }
+    function updateHealthStatus() {
+        fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getHealthStatus',
+            {
+                headers: headers,
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(healthStatus => {
+                // Update and color code BMI status
+                const bmiElement = document.getElementById('bmi-value');
+                bmiElement.textContent = healthStatus.bmi.toFixed(2);
+                bmiElement.className = getBMIColor(healthStatus.bmi_status);
+
+                // Update and color code blood pressure status
+                const bloodPressureElement = document.getElementById('blood-pressure-status-value');
+                bloodPressureElement.textContent = healthStatus.blood_pressure_status;
+                bloodPressureElement.className = getBloodPressureColor(healthStatus.blood_pressure_status);
+
+                // Update and color code saturation status
+                const saturationElement = document.getElementById('saturation-value');
+                saturationElement.textContent = healthStatus.saturation_status;
+                saturationElement.className = getSaturationColor(healthStatus.saturation_status);
+
+                // Update and color code heart rate status
+                const heartRateElement = document.getElementById('heart-rate-status-value');
+                heartRateElement.textContent = healthStatus.heart_rate_status;
+                heartRateElement.className = getHeartRateColor(healthStatus.heart_rate_status);
+            })
+            .catch(error => {
+                console.error('Error fetching health status:', error);
+            });
+    }
+
+    function getBMIColor(bmiStatus) {
+        switch (bmiStatus) {
+            case 'Underweight': return 'text-blue-600';
+            case 'Normal': return 'text-green-600';
+            case 'Overweight': return 'text-yellow-600';
+            case 'Obese': return 'text-red-600';
+            default: return 'text-gray-600';
+        }
+    }
+
+    function getBloodPressureColor(bloodPressureStatus) {
+        switch (bloodPressureStatus) {
+            case 'High': return 'text-red-600';
+            case 'Low': return 'text-blue-600';
+            case 'Normal': return 'text-green-600';
+            default: return 'text-gray-600';
+        }
+    }
+
+    function getSaturationColor(saturationStatus) {
+        switch (saturationStatus) {
+            case 'Low': return 'text-blue-600';
+            case 'Normal': return 'text-green-600';
+            default: return 'text-gray-600';
+        }
+    }
+
+    function getHeartRateColor(heartRateStatus) {
+        switch (heartRateStatus) {
+            case 'Very Light': return 'text-blue-600';
+            case 'Moderate': return 'text-green-600';
+            case 'Hard': return 'text-yellow-600';
+            case 'Maximum': return 'text-red-600';
+            default: return 'text-gray-600';
+        }
+    }
+    function togglePrediction() {
+        var predictionText = document.getElementById("prediction-text");
+        if (predictionText.classList.contains("opacity-0")) {
+            // Move the message to start from the button's left extremity and make it visible
+            predictionText.classList.remove("opacity-0", "-translate-x-full");
+            predictionText.classList.add("opacity-100", "translate-x-0");
+        } else {
+            // Hide the message off to the left again
+            predictionText.classList.remove("opacity-100", "translate-x-0");
+            predictionText.classList.add("opacity-0", "-translate-x-full");
+        }
+    }
+
+
     // Fetch doctors when the page loads
     document.addEventListener('DOMContentLoaded', getAllDoctors);
     document.addEventListener('DOMContentLoaded', loadDoctors);
+    document.addEventListener('DOMContentLoaded',getUserInfo());
+    document.addEventListener('DOMContentLoaded',updateSensorData());
+    document.addEventListener('DOMContentLoaded',fetchAndUpdateUserInfo());
+    document.addEventListener('DOMContentLoaded',updateHealthStatus());
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the button by its ID
+        var predictButton = document.getElementById('predict-button');
+
+        // Ensure the button exists
+        if (predictButton) {
+            // Attach the event listener to the button
+            predictButton.addEventListener('click', togglePrediction);
+        }
+    });
+
+
+
+
+
 
 
     return {
