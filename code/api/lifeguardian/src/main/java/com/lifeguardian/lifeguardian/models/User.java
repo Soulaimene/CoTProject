@@ -145,6 +145,8 @@ public class User   implements Serializable {
 
 
     public  User(){
+        this.sensorsData = new SensorsData();
+
         this.pendingDoctors = new ArrayList<>();
         this.doctors = new ArrayList<>();
         this.role = "User";

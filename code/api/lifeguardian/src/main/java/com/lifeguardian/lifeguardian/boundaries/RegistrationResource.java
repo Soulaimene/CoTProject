@@ -63,10 +63,8 @@ public class RegistrationResource {
             user.setSurname(json.getString("surname"));
             user.setEmergencyContactEmail(json.getString("emergencyContactEmail"));
             healthData.fromJson(json.getJsonObject("healthData"));
-            sensorsData.fromJson(json.getJsonObject("sensorsData"));
 
             user.setHealthData(healthData);
-            user.setSensorsData(sensorsData);
             user.setPassword(json.getString("password"));
             user.setPrediction(json.getInt("prediction"));
 

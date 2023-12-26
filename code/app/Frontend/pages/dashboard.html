@@ -195,10 +195,21 @@
                 </div>
                 <div class="overflow-y-auto" style="max-height: 24rem;">
                     <ul id="doctor-list" class="p-6 space-y-3">
-                        <!-- Doctor list items with invitation buttons will be populated here -->
+                        <!-- Doctor list items with invitation buttons will be populated here by the loadDoctors function -->
                     </ul>
                 </div>
             </div>
+            <div class="row-span-3 bg-white shadow rounded-lg">
+                <div class="flex items-center justify-between px-6 py-5 font-semibold border-b border-gray-100">
+                    <span>My Doctors</span>
+                </div>
+                <div class="overflow-y-auto" style="max-height: 24rem;">
+                    <ul id="my-doctor-list" class="p-6 space-y-3">
+                        <!-- My doctors list items will be populated here by the loadDoctors function -->
+                    </ul>
+                </div>
+            </div>
+
 
         </section>
         <section class="text-right font-semibold text-gray-500">
@@ -207,6 +218,6 @@
     </main>
 </div>
 </body>
-
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="../js/dashboard.js"></script>
 </html>

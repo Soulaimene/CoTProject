@@ -10,10 +10,7 @@ import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.services.CommonService;
 import com.lifeguardian.lifeguardian.services.DoctorService;
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObject;
+import jakarta.json.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 
@@ -30,10 +27,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,25 +64,25 @@ public class UserResources {
                 String username = currentUser.get("username");
                 String role = currentUser.get("role");
 
-                // Validate the current user's role
-                if (!"User".equalsIgnoreCase(role)) {
-                    return Response.status(Response.Status.FORBIDDEN).entity("Only patients can add doctors").build();
-                }
-
                 // Validate the doctor's existence
                 Doctor doctor = doctorRepository.findByUsername(doctorUsername)
                         .orElseThrow(() -> new UserNotFoundException("Doctor not found with username: " + doctorUsername));
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
                 // Check if the user already sent a request to the doctor
                 if (doctor.getPendingPatients().contains(username)) {
                     return Response.status(Response.Status.BAD_REQUEST).entity("You already sent a request to doctor " + doctorUsername).build();
+                }
+
+                if (user.getDoctors().contains(doctorUsername)) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("This Doctor is already in your doctor list " + doctorUsername).build();
                 }
 
                 // Add the patient to the doctor's pending list
                 doctorService.addPendingPatient(doctor, username);
 
                 // Fetch the current user from the userRepository
-                User user = userRepository.findByUsername(username)
-                        .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
 
                 // Add the doctor to the user's pending_doctors list
                 userService.addPendingDoctor(user, doctor.getUsername());
@@ -105,6 +99,15 @@ public class UserResources {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred").build();
         }
     }
+//    Response example :
+//    {
+//        "MyDoctors": [
+//        "sou"
+//    ],
+//        "MyDoctorsPending": [
+//        "karmoussa",
+//    ]
+//    }
     @Path("/getAllDoctors")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -118,19 +121,30 @@ public class UserResources {
                 // Decode the token to get the current user's details
                 Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
                 String role = currentUser.get("role");
+                String username = currentUser.get("username");
 
                 // Check if the role is 'User'
-                if (!"User".equalsIgnoreCase(role)) {
-                    return Response.status(Response.Status.FORBIDDEN).entity("Only users can see all doctors").build();
-                }
+
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
                 // Retrieve all doctors as a stream, map to usernames, and collect to list
                 try (Stream<Doctor> doctorStream = doctorRepository.findAll()) {
                     List<String> doctorUsernames = doctorStream.map(Doctor::getUsername)
                             .collect(Collectors.toList());
+                    List<String> myDoctors = user.getDoctors();
+                    // Create a Set from myDoctors for efficient set difference operation
+                    Set<String> myDoctorsSet = new HashSet<>(myDoctors);
+
+                    // Use Java Streams to find the available doctors (doctor usernames - my doctors)
+                    List<String> availableDoctors = doctorUsernames.stream()
+                            .filter(doctorUsername -> !myDoctorsSet.contains(doctorUsername))
+                            .collect(Collectors.toList());
+
+
                     // Create a JSON array of pending patient usernames
                     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-                    doctorUsernames.forEach(jsonArrayBuilder::add);
+                    availableDoctors.forEach(jsonArrayBuilder::add);
                     JsonArray jsonArray = jsonArrayBuilder.build();
 
                     // Return the list of doctor usernames
@@ -140,6 +154,49 @@ public class UserResources {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
             }
         } catch (Exception e) {
+            // Log the exception here
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred").build();
+        }
+    }
+    @Path("/getMyDoctors")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMyDoctors(@Context HttpHeaders headers) {
+        try {
+            String authHeader = headers.getRequestHeader("Authorization").get(0);
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring("Bearer ".length());
+
+                // Decode the token to get the current user's details
+                Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
+                String username = currentUser.get("username");
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+                List<String> myDoctors = user.getDoctors();
+                List<String> myDoctorsPending = user.getPendingDoctors();
+
+
+
+// Create JSON response using JsonObjectBuilder and JsonArrayBuilder
+                JsonObjectBuilder responseBuilder = Json.createObjectBuilder();
+                JsonArrayBuilder myDoctorsArrayBuilder = Json.createArrayBuilder(myDoctors);
+                JsonArrayBuilder myDoctorsPendingArrayBuilder = Json.createArrayBuilder(myDoctorsPending);
+
+                responseBuilder.add("MyDoctors", myDoctorsArrayBuilder);
+                responseBuilder.add("MyDoctorsPending", myDoctorsPendingArrayBuilder);
+                JsonObject responseData = responseBuilder.build();
+
+
+                return Response.ok(responseData).build();
+
+                // Retrieve all doctors as a stream, map to usernames, and collect to list
+
+            }
+        else {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
+        }
+    } catch (Exception e) {
             // Log the exception here
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred").build();
         }
