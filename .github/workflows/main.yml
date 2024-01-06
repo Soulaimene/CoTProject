@@ -21,4 +21,4 @@ jobs:
 
       - name: Build and Package with Maven
         run: mvn clean package
-        working-directory: /code/api/lifeguardian
+        working-directory: ./code/api/lifeguardian
