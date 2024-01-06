@@ -24,17 +24,31 @@ jobs:
         run: |
           mvn clean package
           echo "::set-output name=war_file::$(ls target/*.war)"
-  deploy:
+
+  jobs:
     runs-on: ubuntu-latest
 
     needs: build
-
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      
     steps:
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.2
-        with:
-          ssh-private-key: ${{ secrets.GCP_VM_SSH_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Copy WAR file to GCP VM
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: 'carbide-oarlock-356612'
+          workload_identity_provider: 'projects/22423504579/locations/global/workloadIdentityPools/githubactions/providers/my-provider'
+          service_account: 'github-actions@carbide-oarlock-356612.iam.gserviceaccount.com'
+          
+      - name: SSH into GCP VM and restart WildFly
+        uses: google-github-actions/setup-gcloud@v2
+
+      - id: 'gcloud'
+        name: 'gcloud'
         run: |
-          scp ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
+          gcloud secrets versions access "latest" --secret "my-secret"
+
