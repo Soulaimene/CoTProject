@@ -41,7 +41,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           project_id: 'carbide-oarlock-356612'
-          workload_identity_provider: 'projects/22423504579/locations/global/workloadIdentityPools/githubactions/providers/my-provider'
+          workload_identity_provider: 'projects/22423504579/locations/global/workloadIdentityPools/githubactions/providers/github'
           service_account: 'github-actions@carbide-oarlock-356612.iam.gserviceaccount.com'
           
       - name: SSH into GCP VM and restart WildFly
