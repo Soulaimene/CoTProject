@@ -31,15 +31,21 @@ jobs:
     needs: build
 
     steps:
+      - name: Debug Secrets
+        run: |
+          echo "VM_USERNAME: ${{ secrets.VM_USERNAME }}"
+          echo "GCP_PRIVATE_KEY: ${{ secrets.GCP_PRIVATE_KEY }}"
+          echo "PRIVATE_KEY: $PRIVATE_KEY"
+      env:
+        PRIVATE_KEY: ${{ secrets.GCP_PRIVATE_KEY }}
+
       - name: Copy WAR file to GCP VM
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.GCP_PRIVATE_KEY }}
-        env:
-          PRIVATE_KEY: ${{ secrets.GCP_PRIVATE_KEY }}
           script: |
+            echo "Debugging: Printing contents of the private key file"
+            cat "$PRIVATE_KEY"
             scp -i "$PRIVATE_KEY" ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
-            # Adjust the destination path on the VM as needed
-
