@@ -37,7 +37,6 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.GCP_PRIVATE_KEY }}
-          key-type: 'env'
           script: |
             scp -i "$PRIVATE_KEY" ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
             # Adjust the destination path on the VM as needed
