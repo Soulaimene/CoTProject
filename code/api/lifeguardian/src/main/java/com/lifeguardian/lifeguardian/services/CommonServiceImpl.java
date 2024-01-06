@@ -8,6 +8,9 @@ import com.lifeguardian.lifeguardian.repository.DoctorRepository;
 import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.utils.Argon2Utility;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -87,5 +90,27 @@ public class CommonServiceImpl implements CommonService {
 
         // If neither is found, throw an exception
         throw new UserNotFoundException("User not found with username: " + username);
+    }
+    @Override
+    public JsonObject stringToJson(String dataString) {
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+
+        // Remove the "HealthData{" and "}" or "SensorData{" and "}"   parts from the string
+        String trimmedString = dataString.substring(dataString.indexOf("{") + 1, dataString.lastIndexOf("}"));
+
+        // Split the string into key-value pairs
+        String[] keyValuePairs = trimmedString.split(",");
+
+        for (String pair : keyValuePairs) {
+            // Split each pair into key and value
+            String[] entry = pair.split("=");
+            String key = entry[0].trim(); // Trim to remove any leading/trailing whitespaces
+            String value = entry.length > 1 ? entry[1].trim() : ""; // Check for values that might be empty
+
+            // Add the key-value pair to the JSON object
+            jsonBuilder.add(key, value);
+        }
+
+        return jsonBuilder.build();
     }
 }
