@@ -34,8 +34,8 @@ jobs:
       - name: Copy WAR file to GCP VM
         uses: appleboy/ssh-action@master
         with:
-          host: my_gcp_vm
-          username: ${{ secrets.VM_USERNAME }}
+          host: 34.16.175.158
+          username: soulaimeneturki
           password: ${{ secrets.VM_PASSWORD }}
           script: |
             scp ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
