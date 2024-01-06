@@ -1,4 +1,4 @@
-const  baseURL = "https://lifeguardian.local/api";
+const baseURL = window.location.href
 const LoginURL =baseURL+'/api/oauth2/login';
 const CurrentUserUrl = baseURL+'/api/current-user';
 
