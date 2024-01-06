@@ -255,7 +255,6 @@ const setup = () => {
 
             if (globalUserInfo == null) {
                 await getUserInfo();
-
             }
             // Update the username and role
             document.getElementById('user-name').textContent = globalUserInfo.username ;
@@ -266,8 +265,6 @@ const setup = () => {
             document.getElementById('user-initials').textContent = initials;
 
     }
-
-
     // Function to fetch sensor data from the API and update the dashboard
     async function updateSensorData() {
         if (!globalUserInfo) {
@@ -275,7 +272,6 @@ const setup = () => {
         }
         displaySensorData(globalUserInfo.sensorsData);
     }
-
 // Function to display the sensor data on the dashboard
     function displaySensorData({apHi, apLo, heartRateData, saturationData, temp}) {
 
@@ -385,7 +381,6 @@ const setup = () => {
         }
     }
 
-
     // Fetch doctors when the page loads
     document.addEventListener('DOMContentLoaded', getAllDoctors);
     document.addEventListener('DOMContentLoaded', loadDoctors);
@@ -404,12 +399,6 @@ const setup = () => {
         }
     });
 
-
-
-
-
-
-
     return {
         loading: true,
         isSidebarOpen: getSidebarStateFromLocalStorage(),
@@ -420,7 +409,6 @@ const setup = () => {
         isSettingsPanelOpen: false,
         isSearchBoxOpen: false,
     }
-
 }
 // Initialize the setup when the script loads
 const dashboard = setup();

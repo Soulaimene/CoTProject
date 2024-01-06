@@ -19,7 +19,6 @@ import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.security.enterprise.SecurityContext;
-import jakarta.ws.rs.core.Response;
 
 
 import java.security.Principal;
@@ -48,7 +47,6 @@ public class UserServiceImpl implements UserService {
       throw new UserAlreadyExistsException(user.getUsername() + " is already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
-    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: ");
 
     System.out.println("User: "+ user);
 
@@ -138,6 +136,16 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
   }
   @Override
+  public void setSensorData(User user, SensorsData sensorData) {
+    // Fetch the doctor by username
+
+    // Modify the doctor's pending_patients list
+    user.setSensorsData(sensorData); // Assuming getPendingPatients() returns a modifiable list
+
+    // Save the changes back to the database
+    userRepository.save(user);
+  }
+  @Override
   public JsonObject CalculateHealthStatus(HealthData healthData, SensorsData sensorsData){
     // Calculate BMI
     double heightInMeters = healthData.getHeight() / 100.0;
@@ -180,6 +188,8 @@ public class UserServiceImpl implements UserService {
     return "Obese";
   }
 
+  }
+
 
 
 
@@ -201,7 +211,6 @@ public class UserServiceImpl implements UserService {
 //    // Save the updated user entity
 //    userRepository.save(user);
 //  }
-}
 
 
 

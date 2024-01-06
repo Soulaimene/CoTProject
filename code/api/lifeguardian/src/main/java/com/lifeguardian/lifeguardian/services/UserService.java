@@ -29,5 +29,8 @@ public interface UserService {
 
     void addPendingDoctor(User user, String doctorUSername);
 
+    void setSensorData(User user, SensorsData sensorData);
+
     JsonObject CalculateHealthStatus(HealthData healthData, SensorsData sensorsData);
+
 }

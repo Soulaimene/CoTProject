@@ -128,6 +128,7 @@ public class UserResources {
                 User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
+
                 // Retrieve all doctors as a stream, map to usernames, and collect to list
                 try (Stream<Doctor> doctorStream = doctorRepository.findAll()) {
                     List<String> doctorUsernames = doctorStream.map(Doctor::getUsername)
@@ -231,16 +232,33 @@ public class UserResources {
             return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
         }
 
-
-
-
-
-
-
-
     }
 
+    // In UserResources class
 
+    @Path("/getMesures")
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getMesures( @Context HttpHeaders headers) {
+        String authHeader = headers.getRequestHeader("Authorization").get(0);
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring("Bearer ".length());
+
+            // Decode the token to get the current user's details
+            Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
+
+            String username = currentUser.get("username");
+            String role = currentUser.get("role");
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
+
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
+        }
+        return Response.status(Response.Status.CREATED).entity("Sensor data published successfully").build();
+    }
 
 }
 
