@@ -24,7 +24,6 @@ jobs:
         run: |
           mvn clean package
           echo "::set-output name=war_file::$(ls target/*.war)"
-
   deploy:
     runs-on: ubuntu-latest
 
@@ -36,6 +35,6 @@ jobs:
         with:
           host: 34.16.175.158
           username: soulaimeneturki
-          password: ${{ secrets.VM_PASSWORD }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
           script: |
             scp ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
