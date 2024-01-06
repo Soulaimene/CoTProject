@@ -136,9 +136,6 @@ public class UserServiceImpl implements UserService {
 
 
 
-
-
-
 //  public void addDoctorToUser(String patientUsername, String doctorUsername) {
 //    // Find the user
 //    User user = userRepository.findByEmail(patientUsername)

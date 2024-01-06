@@ -47,7 +47,6 @@ public class RegistrationResource {
             Doctor doctor = new Doctor();
             // Populate Doctor object from JSON
             doctor.setUsername(json.getString("username"));
-            doctor.setSurname(json.getString("surname"));
             doctor.setEmail(json.getString("email"));
             doctor.setPassword(json.getString("password"));
             doctorService.createDoctor(doctor);
@@ -56,17 +55,15 @@ public class RegistrationResource {
         } else if ("User".equalsIgnoreCase(role)) {
             User user = new User();
             HealthData healthData = new HealthData();
-            SensorsData sensorsData = new SensorsData();
+
 
             user.setEmail(json.getString("email"));
             user.setUsername(json.getString("username"));
-            user.setSurname(json.getString("surname"));
             user.setEmergencyContactEmail(json.getString("emergencyContactEmail"));
             healthData.fromJson(json.getJsonObject("healthData"));
-            sensorsData.fromJson(json.getJsonObject("sensorsData"));
+
 
             user.setHealthData(healthData);
-            user.setSensorsData(sensorsData);
             user.setPassword(json.getString("password"));
             user.setPrediction(json.getInt("prediction"));
 

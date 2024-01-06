@@ -81,7 +81,6 @@ public class DoctorResources {
     }
     @Path("/selectPendingUser/{patientUsername}/{status}")
     @POST
-
     public Response selectPendingUser(@PathParam("patientUsername") String patientUsername,@PathParam("status") String status, @Context HttpHeaders headers) {
         try {
             String authHeader = headers.getRequestHeader("Authorization").get(0);
