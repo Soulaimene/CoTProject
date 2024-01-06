@@ -34,7 +34,7 @@ jobs:
       - name: Copy WAR file to GCP VM
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VM_HOST }}
+          host: my_gcp_vm
           username: ${{ secrets.VM_USERNAME }}
           password: ${{ secrets.VM_PASSWORD }}
           script: |
