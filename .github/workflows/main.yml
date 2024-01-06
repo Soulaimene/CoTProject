@@ -30,11 +30,11 @@ jobs:
     needs: build
 
     steps:
-      - name: Copy WAR file to GCP VM
-        uses: appleboy/ssh-action@master
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.2
         with:
-          host: 34.16.175.158
-          username: soulaimeneturki
-          key: ${{ secrets.GCP_VM_SSH_KEY }}
-          script: |
-            scp ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
+          ssh-private-key: ${{ secrets.GCP_VM_SSH_KEY }}
+
+      - name: Copy WAR file to GCP VM
+        run: |
+          scp ${{ needs.build.outputs.war_file }} soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments/
