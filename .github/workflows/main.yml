@@ -20,5 +20,7 @@ jobs:
           java-version: '21'
 
       - name: Build and Package with Maven
-        run: mvn clean package
+        run: |
+          mvn clean package
+          echo "::set-output name=war_file::$(ls ./code/api/lifeguardian/target/*.war)"
         working-directory: ./code/api/lifeguardian
