@@ -35,4 +35,4 @@ jobs:
 
       - name: Copy War File to Deployments Folder
         run: |
-          gcloud compute scp ./code/api/lifeguardian/target/*.war cotproject:/opt/wildfly/standalone/deployments
+          gcloud compute scp ./code/api/lifeguardian/target/*.war cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b
