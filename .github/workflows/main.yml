@@ -35,4 +35,4 @@ jobs:
 
       - name: Copy War File to Deployments Folder
         run: |
-          gcloud compute scp ./code/api/lifeguardian/target/*.war cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b
+          gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@34.16.175.158:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/home/runner/.ssh/google_compute_engine
