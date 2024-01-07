@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '21'  
+          java-version: '21'
 
       - name: GCP Auth
         uses: google-github-actions/auth@v1
@@ -35,11 +35,8 @@ jobs:
           echo "::set-output name=war_file::$(ls target/*.war)"
 
       - name: Copy War File to Deployments Folder
-        uses: appleboy/ssh-action@master
-        with:
-          host: 34.16.175.158  # Replace with your GCP VM external IP
-          username: soulaimeneturki
-          key: ${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612
+        run: |
+          echo "$GCP_VM_SSH_PRIVATE_KEY" > /tmp/gcp_vm_ssh_private_key
+          chmod 600 /tmp/gcp_vm_ssh_private_key
+          
+          gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key
