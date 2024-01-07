@@ -33,6 +33,15 @@ jobs:
         run: |
           mvn clean package
           echo "::set-output name=war_file::$(ls target/*.war)"
+      - name: Debugging
+        run: |
+          env
+          gcloud auth list
+          gcloud info
+          gcloud compute scp --help
+        shell: bash
+
+
 
       - name: Copy War File to Deployments Folder
         run: |
