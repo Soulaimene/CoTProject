@@ -108,14 +108,14 @@ public class DoctorResources {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
             }
         }catch (UserNotFoundException e) {
-                return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         } catch (Exception e) {
             // Log the exception here
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred").build();
         }
     }
 
-//    Response Template
+    //    Response Template
 //    {
 //        "health_data": {
 //        "age": "70",

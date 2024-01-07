@@ -20,8 +20,7 @@ public class User   implements Serializable {
     @Column("username")
     private String username;
 
-    @Column("surname")
-    private String surname;
+
     @Column("email")
     private String email;
 
@@ -58,9 +57,6 @@ public class User   implements Serializable {
         return username;
     }
 
-    public String getSurname() {
-        return surname;
-    }
 
     public String getEmail() {
         return email;
@@ -104,9 +100,6 @@ public class User   implements Serializable {
         this.username = username;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -160,20 +153,18 @@ public class User   implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(username, user.username) &&
-                Objects.equals(surname, user.surname) &&
                 Objects.equals(email, user.email);
     }
 
 //    different values for these fields produce different hash codes
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), username, surname ,email );
+        return Objects.hash(super.hashCode(), username ,email );
     }
 
     @Override
     public String toString() {
         return "{" +
-                " surname='" + surname + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

@@ -18,7 +18,7 @@ public interface UserService {
 
 //    User findBy(String username);
 
-   // void removeToken(String token);
+    // void removeToken(String token);
 
     User getLoggedUser();
 
@@ -29,8 +29,5 @@ public interface UserService {
 
     void addPendingDoctor(User user, String doctorUSername);
 
-    void setSensorData(User user, SensorsData sensorData);
-
     JsonObject CalculateHealthStatus(HealthData healthData, SensorsData sensorsData);
-
 }

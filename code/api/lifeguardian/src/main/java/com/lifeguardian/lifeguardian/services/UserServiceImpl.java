@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.security.enterprise.SecurityContext;
+import jakarta.ws.rs.core.Response;
 
 
 import java.security.Principal;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
       throw new UserAlreadyExistsException(user.getUsername() + " is already exists");
     }
     user.updatePassword(user.getPassword(), argon2Utility);
+    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: ");
 
     System.out.println("User: "+ user);
 
@@ -117,7 +119,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findBy(String username, String password) {
     final User user =
-        userRepository.findByUsername(username).orElseThrow(UserNotAuthorizedException::new);
+            userRepository.findByUsername(username).orElseThrow(UserNotAuthorizedException::new);
     System.out.println(argon2Utility.check(user.getPassword(), password.toCharArray()));
     if (argon2Utility.check(user.getPassword(), password.toCharArray())) {
 
@@ -131,16 +133,6 @@ public class UserServiceImpl implements UserService {
 
     // Modify the doctor's pending_patients list
     user.getPendingDoctors().add(doctorUsername); // Assuming getPendingPatients() returns a modifiable list
-
-    // Save the changes back to the database
-    userRepository.save(user);
-  }
-  @Override
-  public void setSensorData(User user, SensorsData sensorData) {
-    // Fetch the doctor by username
-
-    // Modify the doctor's pending_patients list
-    user.setSensorsData(sensorData); // Assuming getPendingPatients() returns a modifiable list
 
     // Save the changes back to the database
     userRepository.save(user);
@@ -163,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
 
 
-}
+  }
   private String analyzeHeartRate(int heartRate) {
     if (heartRate < 60) return "Very Light";
     if (heartRate < 100) return "Moderate";
@@ -188,8 +180,6 @@ public class UserServiceImpl implements UserService {
     return "Obese";
   }
 
-  }
-
 
 
 
@@ -211,6 +201,6 @@ public class UserServiceImpl implements UserService {
 //    // Save the updated user entity
 //    userRepository.save(user);
 //  }
-
+}
 
 
