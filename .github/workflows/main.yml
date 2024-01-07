@@ -49,5 +49,5 @@ jobs:
       - id: 'gcloud'
         name: 'gcloud'
         run: |
-          gcloud secrets versions access "latest" --secret "my-secret"
+           gcloud compute scp --zone=34.16.175.158 ${{ needs.build.outputs.war_file }} cotproject:./opt/wildfly/standalone/deployments/
 
