@@ -6,24 +6,23 @@ on:
       - main
 
 jobs:
-  run_commands:
-    runs-on: ubuntu-latest
+  deploy_to_prod:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+            
+        - name: Gcp auth
+          uses: 'google-github-actions/auth@v1'
+          with: 
+            credentials_json: '${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}'
+          
+        - name: 'Set up Cloud SDK'
+          uses: 'google-github-actions/setup-gcloud@v1'
+          with:
+            version: '>= 363.0.0'
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up Google Cloud SDK
-        run: |
-          echo ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }} > gcp-key.json
-          gcloud auth activate-service-account --key-file=gcp-key.json
-          gcloud config set project your-gcp-project-id
-        env:
-          CLOUDSDK_CORE_DISABLE_PROMPTS: 1
-
-      - name: Run gcloud commands
-        run: |
-          # Example: List GCP buckets and echo some data
-          gcloud auth list
-          gcloud config list
-          echo "Hello, GitHub Actions!"
+        - name: Run gcloud commands
+          run: |
+            gcloud auth list
+            gcloud config list
+            echo "Hello, GitHub Actions!"
