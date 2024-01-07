@@ -4,12 +4,20 @@ import jakarta.json.JsonObject;
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 
 @Entity
 public class SensorsData {
-
+    public  SensorsData(){
+        this.apHi = 0;
+        this.apLo = 0;
+        this.saturationData = 0;
+        this.temp = 0;
+        this.heartRateData = 0;
+    }
     @Id
     private String id;
 

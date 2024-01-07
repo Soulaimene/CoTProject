@@ -1,0 +1,87 @@
+
+.box {
+    border-radius: 2rem;
+}
+
+.border-t-10 {
+    border-top-width: 10px;
+}
+
+.toggle-switch-label {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 17px;
+    background-color: #ccc;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.toggle-switch-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    width: 15px;
+    height: 15px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+#selectASwitch:checked + .toggle-switch-label .toggle-switch-handle {
+    transform: translate(26px, -50%);
+}
+
+
+#selectASwitch:checked + .toggle-switch-label {
+    background-color: #534bf2;
+}
+
+#CardioDisease:checked + .toggle-switch-label {
+    background-color: #534bf5;
+}
+
+#CardioDisease:checked + .toggle-switch-label .toggle-switch-handle {
+    transform: translate(26px, -50%);
+}
+
+#smokingSwitch:checked + .toggle-switch-label {
+    background-color: #534bf5;
+}
+
+#smokingSwitch:checked + .toggle-switch-label .toggle-switch-handle {
+    transform: translate(26px, -50%);
+}
+#alcoholSwitch:checked + .toggle-switch-label {
+    background-color: #534bf5;
+}
+
+#alcoholSwitch:checked + .toggle-switch-label .toggle-switch-handle {
+    transform: translate(26px, -50%);
+}
+
+#activitySwitch:checked + .toggle-switch-label {
+    background-color: #534bf5;
+}
+
+#activitySwitch:checked + .toggle-switch-label .toggle-switch-handle {
+    transform: translate(26px, -50%);
+}
+
+@keyframes vibrate {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.empty-field {
+    background-color: #ffc5c5;
+}
+
+.vibrate {
+    animation: vibrate 0.3s ease-in-out;
+}

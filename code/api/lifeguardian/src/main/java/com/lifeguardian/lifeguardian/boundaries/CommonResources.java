@@ -25,6 +25,7 @@ import java.util.Optional;
 import com.lifeguardian.lifeguardian.services.CommonServiceImpl;
 @ApplicationScoped
 @Path("")
+
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CommonResources {
