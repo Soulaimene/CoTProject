@@ -40,6 +40,7 @@ jobs:
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v2
         with:
+          token_format: 'access_token'
           workload_identity_provider: 'projects/22423504579/locations/global/workloadIdentityPools/githubactions/providers/github'
           service_account: 'github-actions@carbide-oarlock-356612.iam.gserviceaccount.com'
           
