@@ -12,6 +12,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'  
       - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
@@ -30,5 +35,4 @@ jobs:
 
       - name: Copy War File to Deployments Folder
         run: |
-          mkdir -p /path/to/your/deployments/folder
-          cp ./code/api/lifeguardian/target/*.war ./opt/wildfly/standalone/deployements
+          gcloud compute scp ./code/api/lifeguardian/target/*.war cotproject:/opt/wildfly/standalone/deployments
