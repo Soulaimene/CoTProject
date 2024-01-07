@@ -25,7 +25,7 @@ jobs:
           mvn clean package
           echo "::set-output name=war_file::$(ls target/*.war)"
 
-  jobs:
+  deploy:
     runs-on: ubuntu-latest
 
     needs: build
@@ -43,11 +43,18 @@ jobs:
           workload_identity_provider: 'projects/22423504579/locations/global/workloadIdentityPools/githubactions/providers/github'
           service_account: 'github-actions@carbide-oarlock-356612.iam.gserviceaccount.com'
           
+      - name: Get GCP VM Zone
+        id: get_zone
+        run: |
+          INSTANCE_ZONE=$(gcloud compute instances describe cotproject --format='value(zone)')
+          echo "::set-output name=instance_zone::$INSTANCE_ZONE"
+          
       - name: SSH into GCP VM and restart WildFly
         uses: google-github-actions/setup-gcloud@v2
 
-      - id: 'gcloud'
-        name: 'gcloud'
+      - name: Copy WAR file to GCP VM
         run: |
-           gcloud compute scp --zone=34.16.175.158 ${{ needs.build.outputs.war_file }} cotproject:./opt/wildfly/standalone/deployments/
+          gcloud compute scp --zone=$INSTANCE_ZONE ${{ needs.build.outputs.war_file }} cotproject:./opt/wildfly/standalone/deployments/
+
+
 
