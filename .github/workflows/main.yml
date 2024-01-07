@@ -17,6 +17,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '21'  
+
       - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
@@ -34,5 +35,11 @@ jobs:
           echo "::set-output name=war_file::$(ls target/*.war)"
 
       - name: Copy War File to Deployments Folder
-        run: |
-          gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/home/runner/.ssh/google_compute_engine
+        uses: appleboy/ssh-action@master
+        with:
+          host: cotproject
+          username: soulaimeneturki
+          key: ${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            gcloud compute scp ./code/api/lifeguardian/target/*.war /opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612
