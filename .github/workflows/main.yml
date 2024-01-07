@@ -37,9 +37,9 @@ jobs:
       - name: Copy War File to Deployments Folder
         uses: appleboy/ssh-action@master
         with:
-          host: cotproject
+          host: 34.16.175.158  # Replace with your GCP VM external IP
           username: soulaimeneturki
           key: ${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            gcloud compute scp ./code/api/lifeguardian/target/*.war /opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612
+            gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612
