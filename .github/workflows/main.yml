@@ -1,4 +1,4 @@
-name: Run gcloud commands
+name: Deploy to Production
 
 on:
   push:
@@ -7,22 +7,28 @@ on:
 
 jobs:
   deploy_to_prod:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-            
-        - name: Gcp auth
-          uses: 'google-github-actions/auth@v1'
-          with: 
-            credentials_json: '${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}'
-          
-        - name: 'Set up Cloud SDK'
-          uses: 'google-github-actions/setup-gcloud@v1'
-          with:
-            version: '>= 363.0.0'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-        - name: Run gcloud commands
-          run: |
-            gcloud auth list
-            gcloud config list
-            echo "Hello, GitHub Actions!"
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: '>= 363.0.0'
+
+      - name: Build and Package with Maven
+        working-directory: ./code/api/lifeguardian
+        run: |
+          mvn clean package
+          echo "::set-output name=war_file::$(ls target/*.war)"
+
+      - name: Copy War File to Deployments Folder
+        run: |
+          mkdir -p /path/to/your/deployments/folder
+          cp ./code/api/lifeguardian/target/*.war ./opt/wildfly/standalone/deployements
