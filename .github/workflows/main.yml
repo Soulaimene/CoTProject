@@ -33,19 +33,26 @@ jobs:
         run: |
           mvn clean package
           echo "::set-output name=war_file::$(ls target/*.war)"
+      
       - name: Debugging
         run: |
+          echo "Environment Variables:"
           env
+          
+          echo "GCloud Authentication List:"
           gcloud auth list
+          
+          echo "GCloud Information:"
           gcloud info
+          
+          echo "GCloud SCP Help:"
           gcloud compute scp --help
         shell: bash
-
-
 
       - name: Copy War File to Deployments Folder
         run: |
           echo "${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}" > /tmp/gcp_vm_ssh_private_key
           chmod 600 /tmp/gcp_vm_ssh_private_key
           
-          gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
+          # Ensure you replace 'soulaimeneturki' with your actual GCP VM username
+          gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@your-gcp-vm:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
