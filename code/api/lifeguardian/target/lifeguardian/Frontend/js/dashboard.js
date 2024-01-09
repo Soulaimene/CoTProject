@@ -57,7 +57,7 @@ const setup = () => {
 
             const inviteButton = document.createElement('button');
             inviteButton.textContent = myPendingDoctors.includes(doctor) ? 'Pending' : 'Send Invitation';
-            inviteButton.classList.add('text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
+            inviteButton.classList.add('text-black', 'font-bold', 'py-1', 'px-2', 'rounded', 'text-xs');
 
             // Check if the doctor is in myPendingDoctors
             if (myPendingDoctors.includes(doctor)) {
