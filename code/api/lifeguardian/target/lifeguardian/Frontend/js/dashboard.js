@@ -1,3 +1,7 @@
+
+const baseURL = window.location.protocol + "//" + window.location.hostname + "/"
+
+
 const setup = () => {
     function getSidebarStateFromLocalStorage() {
         if (window.localStorage.getItem('isSidebarOpen')) {
@@ -80,7 +84,7 @@ const setup = () => {
     // but in the my doctor list instead
     async function sendInvitation(doctorUsername, inviteButton) {
         // Execute the API to send the invitation
-        await fetch(`http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/addDoctor/${doctorUsername}`, {
+        await fetch(`${baseURL}api/user/addDoctor/${doctorUsername}`, {
             method: 'POST',
             headers: headers,
         })
@@ -159,7 +163,7 @@ const setup = () => {
 
     async function loadDoctors() {
         // Endpoint for your API
-        const apiURL = 'http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getMyDoctors';
+        const apiURL = `${baseURL}api/user/getMyDoctors`;
 
         // Fetch the user's doctors
         await fetch(apiURL, {
@@ -186,7 +190,7 @@ const setup = () => {
 
     // Fetch the available doctors list
     async function getAllDoctors() {
-        await fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getAllDoctors', {
+        await fetch(`${baseURL}api/user/getAllDoctors`, {
             headers: headers,
             method: 'GET',
         })
@@ -235,7 +239,7 @@ const setup = () => {
 
     async function getUserInfo() {
         try {
-            const response = await fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/me', {
+            const response = await fetch(`${baseURL}api/me`, {
                 headers: headers,
                 method: 'GET'
             });
@@ -299,7 +303,7 @@ const setup = () => {
         // Add similar updates for any other sensor data you want to display
     }
     function updateHealthStatus() {
-        fetch('http://localhost:8080/lifeguardian-1.0-SNAPSHOT/api/user/getHealthStatus',
+        fetch(`${baseURL}api/user/getHealthStatus`,
             {
                 headers: headers,
                 method: 'GET'

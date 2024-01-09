@@ -8,7 +8,7 @@ if("serviceWorker" in navigator){
 
 
 
-const baseURL = window.location.href
+const baseURL = window.location.protocol + "//" + window.location.hostname + "/"
 
 document.addEventListener('DOMContentLoaded', function () {
     const username = document.getElementById("username");

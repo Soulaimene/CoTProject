@@ -1,6 +1,8 @@
-const baseURL = window.location.href
-const LoginURL =baseURL+'/api/oauth2/login';
-const CurrentUserUrl = baseURL+'/api/current-user';
+const baseURL = window.location.protocol + "//" + window.location.hostname + "/"
+
+const LoginURL =baseURL+'api/oauth2/login';
+
+const CurrentUserUrl = baseURL+'api/current-user';
 
 document.addEventListener('DOMContentLoaded', function () {
     const usernameInput = document.getElementById('username');
@@ -53,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log(data)
                     const userRole = data.role;
                     if (userRole === 'User') {
-                        window.location.href = './dashboard.html';
+                        window.location.href = '/Frontend/pages/dashboard.html';
                     } else if (userRole === 'Doctor') {
-                        window.location.href = './doctorPage.html';
+                        window.location.href = '/Frontend/pages/doctorPage.html';
                     } else {
                         console.error('Unknown user role');
                     }
