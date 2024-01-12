@@ -59,7 +59,7 @@ jobs:
 
       - name: Set Permissions for mlops Directory
         run: |
-          chmod -R +r ./code/mlops
+          chmod -R u+rx ./code/mlops
           chown -R $USER ./code/mlops
 
 
