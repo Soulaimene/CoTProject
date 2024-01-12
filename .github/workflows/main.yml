@@ -59,8 +59,16 @@ jobs:
 
       - name: Set Permissions for mlops Directory
         run: |
-          chmod -R u+rx ./code/mlops
-          chown -R $USER ./code/mlops
+          chmod -R +r ./code/mlops
+          chmod -R +x ./code/mlops
+          chmod -R +w ./code/mlops  # Add if needed
+          ls -l ./code/mlops
+      
+      - name: Debugging Permissions
+        run: |
+          whoami
+          ls -l ./code/mlops
+          id
 
 
       - name: Copy mlops Directory to /opt/wildfly/
