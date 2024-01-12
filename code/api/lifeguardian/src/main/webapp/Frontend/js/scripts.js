@@ -1,6 +1,14 @@
-const baseURL = "http://localhost:8080"
-const LoginURL =baseURL+'/api/oauth2/login';
-const CurrentUserUrl = baseURL+'/api/current-user';
+const baseURL = window.location.protocol + "//" + window.location.hostname + "//"
+
+const LoginURL =baseURL+'api/oauth2/login';
+
+const CurrentUserUrl = baseURL+'api/current-user';
+
+if("serviceWorker" in navigator){
+    navigator.serviceWorker.register('./sw.js')
+        .then((reg) => console.log("service worker registered",reg))
+        .catch((err) => console.log("service worker not registered",err));
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const usernameInput = document.getElementById('username');
@@ -53,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log(data)
                     const userRole = data.role;
                     if (userRole === 'User') {
-                        window.location.href = './dashboard.html';
+                        window.location.href = '/Frontend/pages/dashboard.html';
                     } else if (userRole === 'Doctor') {
-                        window.location.href = './doctorPage.html';
+                        window.location.href = '/Frontend/pages/doctorPage.html';
                     } else {
                         console.error('Unknown user role');
                     }

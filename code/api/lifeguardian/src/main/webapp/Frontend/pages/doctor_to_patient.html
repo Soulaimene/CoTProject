@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="../dist/output.css" rel="stylesheet">
+    <link href="../css/bootstrap/bootstrapCDN.css" rel="stylesheet">
+
+</head>
+
+<body class="flex bg-gray-100 min-h-screen">
+
+<div class="flex-grow text-gray-800">
+    <header class="flex items-center h-20 px-6 sm:px-10 bg-white">
+        <button class="block sm:hidden relative flex-shrink-0 p-2 mr-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800 focus:bg-gray-100 focus:text-gray-800 rounded-full">
+            <span class="sr-only">Menu</span>
+            <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+        </button>
+        <!--        <div class="relative w-full max-w-md sm:-ml-2">-->
+        <!--            <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" class="absolute h-6 w-6 mt-2.5 ml-2 text-gray-400">-->
+        <!--                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />-->
+        <!--            </svg>-->
+        <!--            </svg>-->
+        <!--            <input type="text" role="search" placeholder="Search..." class="py-2 pl-10 pr-4 w-full border-4 border-transparent placeholder-gray-400 focus:bg-gray-50 rounded-lg" />-->
+        <!--        </div>-->
+        <div class="flex flex-shrink-0 items-center ml-auto">
+            <button class="inline-flex items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-lg">
+                <span class="sr-only">User Menu</span>
+                <div class="hidden md:flex md:flex-col md:items-end md:leading-tight">
+                    <span class="font-semibold" id="user-name">--</span>
+                    <span class="text-sm text-gray-600" id="user-role">--</span>
+                </div>
+                <span class="h-12 w-12 ml-2 sm:ml-3 mr-2 bg-purple-500 text-white flex items-center justify-center rounded-full font-bold" id="user-initials">--</span>
+            </button>
+        </div>
+    </header>
+    <main class="p-6 sm:p-10 space-y-6">
+        <div class="flex flex-col space-y-6 md:space-y-0 md:flex-row justify-between items-center">
+            <div>
+                <h1 id="patient-name" class="text-4xl font-semibold mb-2 text-indigo-700">--</h1>
+                <h2 class="text-gray-600">Your Patient Health Dashbord</h2>
+            </div>
+            <div class="flex flex-wrap items-center justify-end -mb-3">
+
+                <div class="relative inline-flex items-center">
+                    <!-- Return button -->
+                    <button id="return-button" class="inline-flex items-center px-5 py-3 text-white bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 rounded-md">
+                        <svg id="spinner" class="hidden animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2.3a9.7 9.7 0 00-6.3 2.37" />
+                        </svg>
+                        Return
+                    </button>
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+
+        <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="flex items-center p-8 bg-white shadow rounded-lg" id="heart-rate-value">
+                <div class="inline-flex flex-shrink-0 items-center justify-center h-16 w-16 text-purple-600 bg-purple-100 rounded-full mr-6">
+                    <img src="../images/BPM.svg" alt="Heart Rate" class="h-6 w-6">
+
+                </div>
+                <div>
+                    <span class="block text-2xl font-bold"></span>
+                    <span class="block text-gray-500">Heart Rate</span>
+                </div>
+            </div>
+            <div class="flex items-center p-8 bg-white shadow rounded-lg" id="temperature-value">
+                <div class="inline-flex flex-shrink-0 items-center justify-center h-16 w-16 text-green-600 bg-green-100 rounded-full mr-6">
+                    <img src="../images/temp.svg" alt="Temperature" class="h-6 w-6">
+
+                </div>
+                <div>
+                    <span class="block text-2xl font-bold"></span>
+                    <span class="block text-gray-500">Temperature</span>
+                </div>
+            </div>
+            <div class="flex items-center p-8 bg-white shadow rounded-lg" id="blood-pressure-value">
+                <div class="inline-flex flex-shrink-0 items-center justify-center h-16 w-16 text-red-600 bg-red-100 rounded-full mr-6">
+                    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                        <img src="../images/Bprr.svg" alt="Blood Pressure" class="h-6 w-6">
+                    </svg>
+                </div>
+                <div>
+                    <span class="inline-block text-2xl font-bold"></span>
+                    <span class="block text-gray-500">Pression systolic/diastolic</span>
+                </div>
+            </div>
+            <div class="flex items-center p-8 bg-white shadow rounded-lg" id="oxygen-level-value">
+                <div class="inline-flex flex-shrink-0 items-center justify-center h-16 w-16 text-blue-600 bg-blue-100 rounded-full mr-6">
+                    <img src="../images/O2.svg" alt="Oxygene" class="h-6 w-6">
+
+                </div>
+                <div>
+                    <span class="block text-2xl font-bold"></span>
+                    <span class="block text-gray-500">Oxygen Level</span>
+                </div>
+            </div>
+        </section>
+        <section class="grid md:grid-cols-7 xl:grid-cols-7 xl:grid-rows-2 xl:grid-flow-col gap-6">
+            <div class="flex flex-col md:col-span-2 bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 font-semibold border-b border-gray-100">Patient Health Status</div>
+                <div class="flex flex-wrap">
+                    <div class="w-1/2 p-4 border-r border-b">
+                        <div class="text-center">
+                            <span class="block text-2xl font-bold text-purple-600" id="bmi-value">--</span>
+                            <span class="block text-gray-500">BMI (Body Mass Index)</span>
+                        </div>
+                    </div>
+                    <div class="w-1/2 p-4 border-b">
+                        <div class="text-center">
+                            <span class="block text-2xl font-bold text-red-600" id="blood-pressure-status-value">--</span>
+                            <span class="block text-gray-500">Blood Pressure Status</span>
+                        </div>
+                    </div>
+                    <div class="w-1/2 p-4 border-r">
+                        <div class="text-center">
+                            <span class="block text-2xl font-bold text-blue-600" id="saturation-value">--</span>
+                            <span class="block text-gray-500">Saturation Status</span>
+                        </div>
+                    </div>
+                    <div class="w-1/2 p-4">
+                        <div class="text-center">
+                            <span class="block text-2xl font-bold text-green-600" id="heart-rate-status-value">--</span>
+                            <span class="block text-gray-500">Heart Rate Status</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col md:col-span-3 bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 font-semibold border-b border-gray-100">Patient Health Data</div>
+                <div class="flex flex-wrap">
+                <div class="w-1/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="age-value">--</span>
+                        <span class="block text-gray-500">Age</span>
+                    </div>
+                </div>
+                <div class="w-1/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="gluc-value">--</span>
+                        <span class="block text-gray-500">Glucose Level</span>
+                    </div>
+                </div>
+                <div class="w-2/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="alco-value">--</span>
+                        <span class="block text-gray-500">Alcoholic</span>
+                    </div>
+                </div>
+                <div class="w-2/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="smoke-value">--</span>
+                        <span class="block text-gray-500">Smoker</span>
+                    </div>
+                </div>
+                <div class="w-3/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="active-value">--</span>
+                        <span class="block text-gray-500">Activity Level</span>
+                    </div>
+                </div>
+                <div class="w-3/3 p-6 border-r">
+                    <div class="text-center">
+                        <span class="block text-md font-bold" id="cholesterol-value">--</span>
+                        <span class="block text-gray-500">Cholesterol</span>
+                    </div>
+                </div>
+                    <div class="w-3/3 p-6 border-r">
+                        <div class="text-center">
+                            <span class="block text-md font-bold" id="height-value">--</span>
+                            <span class="block text-gray-500">Height</span>
+                        </div>
+                    </div>
+                    <div class="w-3/3 p-6 border-r">
+                        <div class="text-center">
+                            <span class="block text-md font-bold" id="weight-value">--</span>
+                            <span class="block text-gray-500">Weight</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+
+        </section>
+
+    </main>
+</div>
+</body>
+<script src="../js/doctor_to_patient.js"></script>
+</html>

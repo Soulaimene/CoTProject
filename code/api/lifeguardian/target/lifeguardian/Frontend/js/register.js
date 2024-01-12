@@ -1,14 +1,5 @@
 
-// to register the sw.js :
-if("serviceWorker" in navigator){
-    navigator.serviceWorker.register('./sw.js')
-        .then((reg) => console.log("service worker registered",reg))
-        .catch((err) => console.log("service worker not registered",err));
-}
-
-
-
-const baseURL = window.location.href
+const baseURL = window.location.protocol + "//" + window.location.hostname + "/"
 
 document.addEventListener('DOMContentLoaded', function () {
     const username = document.getElementById("username");
@@ -77,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add event listener for form submission
-    document.getElementById('loginForm').addEventListener('submit', function (event) {
+    document.getElementById('SignupForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
         if (isEmpty(username)) emptyFields.push(username);
@@ -192,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     errorContainer.classList.remove('hidden');
 
                 } else {
-                    window.location.href = './Frontend/pages/login.html';
+                    window.location.href = './login.html';
                 }
             })
             .catch(error => {

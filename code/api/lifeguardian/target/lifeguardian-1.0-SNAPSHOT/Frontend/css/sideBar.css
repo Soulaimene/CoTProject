@@ -1,0 +1,123 @@
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 250px;
+    height: 100vh;
+    background: white;
+    border-radius: 10px 0 0 10px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    height: 100%;
+    line-height: 1.6; /* Increase line spacing */
+    font-size: 0.9rem; /* Adjust font size */
+}
+
+.sidebar-content h2 {
+    margin-bottom: 20px; /* Spacing between title and content */
+    font-size: 1.4rem; /* Larger font size for the title */
+    color: #333; /* Darker font color for better readability */
+}
+
+.sidebar-content p {
+    margin-bottom: 10px; /* Spacing between paragraphs */
+}
+
+.sidebar-btn,
+.sidebar-close-btn {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.sidebar-btn:hover,
+.sidebar-close-btn:hover {
+    background-color: #45a049;
+}
+
+/* Add this class when the sidebar is open */
+.sidebar-open {
+    transform: translateX(0); /* Reset the transform to show the sidebar */
+}
+/* Style for the user info at the top of the sidebar */
+#sidebar .user-info {
+    text-align: center; /* Center align the content */
+    padding: 20px; /* Padding around the content */
+    background-color: #f3f4f6; /* Light gray background for the user info area */
+    border-bottom: 1px solid #e5e7eb; /* Separator line */
+}
+
+#sidebar .user-info .font-semibold {
+    display: block; /* Ensures the element is a block for spacing */
+    margin-top: 10px; /* Space above the name */
+}
+
+#sidebar .user-info .text-gray-600 {
+    display: block; /* Ensures the element is a block for spacing */
+    margin-bottom: 10px; /* Space below the role */
+}
+
+/* Styles for the circle avatar */
+#sidebar .user-info .h-12.w-12 {
+    margin: 10px auto; /* Centers the circle horizontally and adds space */
+    border-radius: 50%; /* Circular shape */
+}
+/* Base styles for the prediction popup */
+#prediction-popup {
+    display: flex; /* Use flexbox for centering content */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    position: absolute; /* Positioning relative to its nearest positioned ancestor */
+    top: 22%; /* Center vertically */
+    left: 73%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Centering adjustment */
+    background-color: white; /* Default background color */
+    padding: 1rem; /* Padding inside the popup */
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    z-index: 10; /* Ensures it appears above other content */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Ensure it doesn't block interaction when hidden */
+    transition: opacity 0.3s, visibility 0.3s; /* Animate the transition */
+}
+
+
+/* Visible state for the prediction popup */
+#prediction-popup.visible {
+    opacity: 1; /* Fully visible */
+    visibility: visible; /* Make it interactive */
+}
+
+/* Styles for the prediction message text */
+#prediction-message {
+    font-size: 0.8rem; /* Base text size */
+    font-weight: bold; /* Bold text */
+    color: white; /* White text for contrast */
+    text-align: center; /* Center text */
+}
+
+/* Styles for success prediction */
+#prediction-popup.success {
+    background-color: #10b981; /* Tailwind's green-500 for success */
+}
+
+/* Styles for failure prediction */
+#prediction-popup.failure {
+    background-color: #ef4444; /* Tailwind's red-500 for failure */
+}

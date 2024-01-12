@@ -1,23 +1,15 @@
 
-const baseURL = "http://localhost:8080"
+const baseURL = window.location.protocol + "//" + window.location.hostname+ "/" +
+    "/"
 
 
 const setup = () => {
-    function getSidebarStateFromLocalStorage() {
-        if (window.localStorage.getItem('isSidebarOpen')) {
-            return JSON.parse(window.localStorage.getItem('isSidebarOpen'))
-        }
-        return false;  // Default state
-    }
 
-    function setSidebarStateToLocalStorage(value) {
-        window.localStorage.setItem('isSidebarOpen', value)
-    }
 
     // Function to parse cookies and retrieve a specific one
     function getCookie(name) {
         let cookieArray = document.cookie.split(';');
-        for(let i = 0; i < cookieArray.length; i++) {
+        for (let i = 0; i < cookieArray.length; i++) {
             let cookiePair = cookieArray[i].split('=');
             if (name === cookiePair[0].trim()) {
                 return decodeURIComponent(cookiePair[1]);
@@ -25,6 +17,7 @@ const setup = () => {
         }
         return null;
     }
+
     const accessToken = getCookie('accessToken');  // Get the token from cookies
 
     if (!accessToken) {
@@ -80,11 +73,13 @@ const setup = () => {
             doctorList.appendChild(listItem);
         });
     }
+
     // Send the invitation to the doctor if the doctor accept he will no longer be in the available doctor
     // but in the my doctor list instead
     async function sendInvitation(doctorUsername, inviteButton) {
         // Execute the API to send the invitation
-        await fetch(`${baseURL}/api/user/addDoctor/${doctorUsername}`, {
+
+        await fetch(`${baseURL}api/user/addDoctor/${doctorUsername}`, {
             method: 'POST',
             headers: headers,
         })
@@ -138,6 +133,7 @@ const setup = () => {
         }
         button.disabled = isPending;
     }
+
     // funtion to display all the doctors
     function AllMyDoctors(doctors) {
         const mydoctorList = document.getElementById('my-doctor-list');
@@ -153,17 +149,17 @@ const setup = () => {
             nameSpan.classList.add('text-gray-600');
 
 
-
             listItem.appendChild(nameSpan);
 
             mydoctorList.appendChild(listItem);
         });
     }
+
     // fetch all my doctors
 
     async function loadDoctors() {
         // Endpoint for your API
-        const apiURL = `${baseURL}/api/user/getMyDoctors`;
+        const apiURL = `${baseURL}api/user/getMyDoctors`;
 
         // Fetch the user's doctors
         await fetch(apiURL, {
@@ -190,7 +186,7 @@ const setup = () => {
 
     // Fetch the available doctors list
     async function getAllDoctors() {
-        await fetch(`${baseURL}/api/user/getAllDoctors`, {
+        await fetch(`${baseURL}api/user/getAllDoctors`, {
             headers: headers,
             method: 'GET',
         })
@@ -217,7 +213,6 @@ const setup = () => {
     }
 
 
-
     function adjustHeight(listId) {
         const maxItemsToShow = 5;
         const listElement = document.getElementById(listId);
@@ -239,7 +234,7 @@ const setup = () => {
 
     async function getUserInfo() {
         try {
-            const response = await fetch(`${baseURL}/api/me`, {
+            const response = await fetch(`${baseURL}api/me`, {
                 headers: headers,
                 method: 'GET'
             });
@@ -255,6 +250,67 @@ const setup = () => {
             console.error('Error fetching user info:', error);
         }
     }
+
+
+    async function getUserHealthData() {
+        if (!globalUserInfo) {
+            await getUserInfo();
+        }
+        displayHealthData(globalUserInfo.healthData);
+    }
+
+    function displayHealthData({age, cholesterol, gluc, alco, smoke, active}) {
+        // Assuming you have HTML elements with the following IDs in your sidebar
+        document.getElementById('age-value').textContent = age;
+        document.getElementById('cholesterol-value').textContent = mapCholesterol(cholesterol);
+        document.getElementById('smoke-value').textContent = mapSmoke(smoke);
+        document.getElementById('active-value').textContent = mapActive(active);
+        document.getElementById('alco-value').textContent = mapAlco(alco);
+        document.getElementById('gluc-value').textContent = mapGluc(gluc);
+    }
+
+    function mapCholesterol(value) {
+        const cholesterolMap = {
+            '0': 'Normal',
+            '1': 'high',
+            '2': 'very high'
+        };
+        return cholesterolMap[value] || 'Unknown';
+    }
+
+    function mapActive(value) {
+        const activeMap = {
+            '0': 'Active',
+            '1': 'Not Active'
+        };
+        return activeMap[value] || 'Unknown';
+    }
+
+    function mapSmoke(value) {
+        const smokeMap = {
+            '0': 'Non-Smoker',
+            '1': 'Smoker'
+        };
+        return smokeMap[value] || 'Unknown';
+    }
+
+    function mapGluc(value) {
+        const glucMap = {
+            '1': 'Normal',
+            '2': 'high',
+            '3': 'very high'
+        };
+        return glucMap[value] || 'Unknown';
+    }
+
+    function mapAlco(value) {
+        const alcoMap = {
+            '0': 'Non-Alcoholic',
+            '1': 'Alcoholic'
+        };
+        return alcoMap[value] || 'Unknown';
+    }
+
     async function fetchAndUpdateUserInfo() {
 
         if (globalUserInfo == null) {
@@ -262,12 +318,21 @@ const setup = () => {
 
         }
         // Update the username and role
-        document.getElementById('user-name').textContent = globalUserInfo.username ;
+        document.getElementById('user-name').textContent = globalUserInfo.username;
         document.getElementById('user-role').textContent = globalUserInfo.role;
+            // Set the text content for both main content and sidebar
+            document.getElementById('sidebar-user-name').textContent = globalUserInfo.username;
+
+            document.getElementById('sidebar-user-role').textContent =globalUserInfo.role;
+
+
+
 
         // Create initials from the username
         const initials = globalUserInfo.username ? globalUserInfo.username.split(' ').map(n => n[0]).join('').toUpperCase() : '--';
         document.getElementById('user-initials').textContent = initials;
+        document.getElementById('sidebar-user-initials').textContent = initials;
+
 
     }
 
@@ -278,32 +343,34 @@ const setup = () => {
             await getUserInfo();
         }
         displaySensorData(globalUserInfo.sensorsData);
-    }
 
+        updateHealthStatus(globalUserInfo.sensorsData.apHi,globalUserInfo.sensorsData.saturationData,globalUserInfo.sensorsData.heartRateData)
+    }
 // Function to display the sensor data on the dashboard
     function displaySensorData({apHi, apLo, heartRateData, saturationData, temp}) {
 
 
         // Update heart rate
         const heartRateValueElement = document.querySelector('#heart-rate-value .text-2xl');
-        heartRateValueElement.textContent = heartRateData ;
+        heartRateValueElement.textContent = heartRateData;
 
         // Update temperature
         const temperatureValueElement = document.querySelector('#temperature-value .text-2xl');
-        temperatureValueElement.textContent = temp ;
+        temperatureValueElement.textContent = temp;
 
         // Update blood pressure (systolic/diastolic)
         const bloodPressureValueElement = document.querySelector('#blood-pressure-value .text-2xl');
-        bloodPressureValueElement.textContent = `${apHi }/${apLo }`;
+        bloodPressureValueElement.textContent = `${apHi}/${apLo}`;
 
         // Update oxygen level
         const oxygenLevelValueElement = document.querySelector('#oxygen-level-value .text-2xl');
-        oxygenLevelValueElement.textContent = `${saturationData  }%`;
+        oxygenLevelValueElement.textContent = `${saturationData}%`;
 
         // Add similar updates for any other sensor data you want to display
     }
-    function updateHealthStatus() {
-        fetch(`${baseURL}/api/user/getHealthStatus`,
+
+    function updateHealthStatus(apHi,saturationData,heartRateData) {
+        fetch(`${baseURL}api/user/getHealthStatus`,
             {
                 headers: headers,
                 method: 'GET'
@@ -334,6 +401,17 @@ const setup = () => {
                 const heartRateElement = document.getElementById('heart-rate-status-value');
                 heartRateElement.textContent = healthStatus.heart_rate_status;
                 heartRateElement.className = getHeartRateColor(healthStatus.heart_rate_status);
+
+
+                if (
+                    (healthStatus.blood_pressure_status !== 'Normal' && apHi !== 0) ||
+                    (healthStatus.saturation_status !== 'Normal' && saturationData !== 0) ||
+                    (healthStatus.heart_rate_status !== 'Maximum' && healthStatus.heart_rate_status !== 'Hard' && heartRateData !== 0)
+                ) {
+                    getUserLocation();
+
+                }
+
             })
             .catch(error => {
                 console.error('Error fetching health status:', error);
@@ -342,89 +420,201 @@ const setup = () => {
 
     function getBMIColor(bmiStatus) {
         switch (bmiStatus) {
-            case 'Underweight': return 'text-blue-600';
-            case 'Normal': return 'text-green-600';
-            case 'Overweight': return 'text-yellow-600';
-            case 'Obese': return 'text-red-600';
-            default: return 'text-gray-600';
+            case 'Underweight':
+                return 'text-blue-600';
+            case 'Normal':
+                return 'text-green-600';
+            case 'Overweight':
+                return 'text-yellow-600';
+            case 'Obese':
+                return 'text-red-600';
+            default:
+                return 'text-gray-600';
         }
     }
 
     function getBloodPressureColor(bloodPressureStatus) {
         switch (bloodPressureStatus) {
-            case 'High': return 'text-red-600';
-            case 'Low': return 'text-blue-600';
-            case 'Normal': return 'text-green-600';
-            default: return 'text-gray-600';
+            case 'High':
+                return 'text-red-600';
+            case 'Low':
+                return 'text-blue-600';
+            case 'Normal':
+                return 'text-green-600';
+            default:
+                return 'text-gray-600';
         }
     }
 
     function getSaturationColor(saturationStatus) {
         switch (saturationStatus) {
-            case 'Low': return 'text-blue-600';
-            case 'Normal': return 'text-green-600';
-            default: return 'text-gray-600';
+            case 'Low':
+                return 'text-blue-600';
+            case 'Normal':
+                return 'text-green-600';
+            default:
+                return 'text-gray-600';
         }
     }
 
     function getHeartRateColor(heartRateStatus) {
         switch (heartRateStatus) {
-            case 'Very Light': return 'text-blue-600';
-            case 'Moderate': return 'text-green-600';
-            case 'Hard': return 'text-yellow-600';
-            case 'Maximum': return 'text-red-600';
-            default: return 'text-gray-600';
+            case 'Very Light':
+                return 'text-blue-600';
+            case 'Moderate':
+                return 'text-green-600';
+            case 'Hard':
+                return 'text-yellow-600';
+            case 'Maximum':
+                return 'text-red-600';
+            default:
+                return 'text-gray-600';
         }
     }
-    function togglePrediction() {
-        var predictionText = document.getElementById("prediction-text");
-        if (predictionText.classList.contains("opacity-0")) {
-            // Move the message to start from the button's left extremity and make it visible
-            predictionText.classList.remove("opacity-0", "-translate-x-full");
-            predictionText.classList.add("opacity-100", "translate-x-0");
+
+    async function getPrediction() {
+        // Disable the button and show the spinner
+        var predictButton = document.getElementById('predict-button');
+        predictButton.disabled = true;
+        var spinner = document.getElementById('spinner');
+
+        spinner.classList.remove('hidden');
+        // Assuming baseURL is already defined in your script
+        await fetch(`${baseURL}api/user/predict`, {
+            method: 'POST',
+            headers: headers,
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayPredictionPopup(data);
+                // Re-enable the button after 10 seconds
+                setTimeout(function () {
+                    predictButton.disabled = false;
+                    spinner.classList.add('hidden');
+                    hidePredictionPopup();
+                }, 5000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable the button on error
+                predictButton.disabled = false;
+                spinner.classList.add('hidden');
+            });
+
+
+    }
+
+
+    function displayPredictionPopup(prediction) {
+        var predictionPopup = document.getElementById("prediction-popup");
+        var predictionMessage = document.getElementById("prediction-message");
+
+        // Reset classes and make sure the popup is visible
+        predictionPopup.classList.remove("success", "failure");
+        predictionPopup.classList.add("visible");
+
+        if (prediction == 0) {
+            predictionMessage.textContent = "Your heart is well.";
+            predictionPopup.classList.add("success");
+        } else if (prediction == 1) {
+            predictionMessage.textContent = "You might have a heart failure. Please contact your doctor.";
+            predictionPopup.classList.add("failure");
         } else {
-            // Hide the message off to the left again
-            predictionText.classList.remove("opacity-100", "translate-x-0");
-            predictionText.classList.add("opacity-0", "-translate-x-full");
+            predictionMessage.textContent = "Unable to determine the prediction.";
         }
     }
+
+    function hidePredictionPopup() {
+        var predictionPopup = document.getElementById("prediction-popup");
+        predictionPopup.classList.remove("visible");
+    }
+
+
+    function getUserLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
+                    // Now you can use these coordinates as needed, for example, send them to your server
+                    sendCoordinatesInEmail(latitude, longitude);
+                },
+                (error) => {
+                    console.error('Error getting user location:', error.message);
+                }
+            );
+        } else {
+            console.error('Geolocation is not supported by this browser.');
+        }
+    }
+    async function sendCoordinatesInEmail(latitude, longitude) {
+        await fetch(`${baseURL}api/user/send-email/${latitude}/${longitude}`, {
+            method: 'POST',
+            headers: headers,
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Request was successful
+                    return response.json();
+                } else {
+                    // Handle error response
+                    return response.text().then(errorMessage => {
+                        throw new Error(errorMessage);
+                    });
+                }
+            })
+            .then(data => {
+                // Handle the response from the backend if needed
+                console.log('Email sent successfully:', data);
+            })
+            .catch(error => {
+                // Handle fetch error
+                console.error('Error sending email:', error);
+            });
+    }
+
 
 
     // Fetch doctors when the page loads
     document.addEventListener('DOMContentLoaded', getAllDoctors);
     document.addEventListener('DOMContentLoaded', loadDoctors);
-    document.addEventListener('DOMContentLoaded',getUserInfo());
-    document.addEventListener('DOMContentLoaded',updateSensorData());
-    document.addEventListener('DOMContentLoaded',fetchAndUpdateUserInfo());
-    document.addEventListener('DOMContentLoaded',updateHealthStatus());
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', getUserInfo());
+    document.addEventListener('DOMContentLoaded', updateSensorData());
+    document.addEventListener('DOMContentLoaded', fetchAndUpdateUserInfo());
+    // document.addEventListener('DOMContentLoaded', updateHealthStatus());
+    document.addEventListener('DOMContentLoaded', function () {
         // Get the button by its ID
         var predictButton = document.getElementById('predict-button');
 
         // Ensure the button exists
         if (predictButton) {
             // Attach the event listener to the button
-            predictButton.addEventListener('click', togglePrediction);
+            predictButton.addEventListener('click', getPrediction);
         }
+    });
+    // Trigger the openSidebar function when the button is clicked
+// This function could be in your dashboard.js or another appropriate file
+
+
+    document.getElementById('user-menu').addEventListener('click', function() {
+        console.log('button clicked!')
+        document.getElementById('sidebar').classList.add('sidebar-open');
+        getUserHealthData()
+    });
+
+    document.getElementById('close-sidebar').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('sidebar-open');
     });
 
 
 
-
-
-
-
-    return {
-        loading: true,
-        isSidebarOpen: getSidebarStateFromLocalStorage(),
-        toggleSidbarMenu() {
-            this.isSidebarOpen = !this.isSidebarOpen
-            setSidebarStateToLocalStorage(this.isSidebarOpen)
-        },
-        isSettingsPanelOpen: false,
-        isSearchBoxOpen: false,
-    }
-
+// Initialize the sidebar setup when the DOM is fully loaded
 }
 // Initialize the setup when the script loads
 const dashboard = setup();

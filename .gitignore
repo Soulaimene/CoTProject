@@ -1,1 +1,9 @@
+
 .idea
+./code/mlops/preprocess/kmodes_model_female.joblib
+./code/mlops/preprocess/kmodes_model_male.joblib
+./code/mlops/rf_model_73.joblib
+
+
+*.joblib
+
