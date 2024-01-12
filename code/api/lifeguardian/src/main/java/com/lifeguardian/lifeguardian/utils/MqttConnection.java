@@ -85,12 +85,12 @@ public class MqttConnection {
                         try (JsonReader jsonReader = Json.createReader(new StringReader(new String(message.getPayload())))) {
                             JsonObject json = jsonReader.readObject();
                             String username = json.getString("username");
-                            JsonObject sensorDataJson = json.getJsonObject("sensorData");
+                            JsonObject sensorDataJson = json.getJsonObject("sensor_data");
                             User user = userRepository.findByUsername(username)
                                     .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
                             SensorsData sensorData = new SensorsData();
-                            sensorData.setSaturationData(sensorDataJson.getInt("saturatiOnData"));
+                            sensorData.setSaturationData(sensorDataJson.getInt("saturationData"));
                             sensorData.setTemp(sensorDataJson.getInt("temp"));
                             sensorData.setApHi(sensorDataJson.getInt("apHi"));
                             sensorData.setHeartRateData(sensorDataJson.getInt("heartRateData"));
