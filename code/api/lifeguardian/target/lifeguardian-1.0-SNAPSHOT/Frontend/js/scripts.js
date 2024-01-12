@@ -1,4 +1,4 @@
-const baseURL = window.location.protocol + "//" + window.location.hostname + ":8080/"
+const baseURL = window.location.protocol + "//" + window.location.hostname + "//"
 
 const LoginURL =baseURL+'api/oauth2/login';
 
