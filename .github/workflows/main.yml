@@ -57,19 +57,15 @@ jobs:
           chmod 644 /tmp/gcp_vm_ssh_private_key.pub
           gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
 
-      - name: Set Permissions for mlops Directory
+      - name: Debugging Files and Permissions
         run: |
-          chmod -R +r ./code/mlops
-          chmod -R +x ./code/mlops
-          chmod -R +w ./code/mlops  # Add if needed
-          ls -l ./code/mlops
-      
-      - name: Debugging Permissions
-        run: |
-          whoami
-          ls -l ./code/mlops
+          ls -al ./code/mlops
           id
-
+      
+      - name: Set Permissions for mlops Directory (Temporary)
+        run: |
+          chmod -R 777 ./code/mlops
+          ls -al ./code/mlops
 
       - name: Copy mlops Directory to /opt/wildfly/
         run: |
