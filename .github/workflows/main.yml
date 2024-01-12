@@ -64,7 +64,7 @@ jobs:
           id
 
           echo "Current Permissions of /opt/wildfly/ Directory:"
-          ls -al /opt/wildfly/
+          ls -al /opt/wildfly
           
       - name: Set Permissions for mlops Directory (Temporary)
         run: |
@@ -73,7 +73,7 @@ jobs:
         
       - name: Copy mlops Directory to /opt/wildfly/ (Before)
         run: |
-          ls -al /opt/wildfly/
+          ls -al /opt/wildfly
 
       - name: Copy mlops Directory to /opt/wildfly/
         run: |
@@ -95,5 +95,5 @@ jobs:
           id
 
           echo "New Permissions of /opt/wildfly/ Directory:"
-          ls -al /opt/wildfly/
+          ls -al /opt/wildfly
             
