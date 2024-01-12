@@ -11,6 +11,8 @@ import com.lifeguardian.lifeguardian.repository.UserRepository;
 import com.lifeguardian.lifeguardian.services.CommonService;
 import com.lifeguardian.lifeguardian.services.DoctorService;
 import com.lifeguardian.lifeguardian.utils.EmailSender;
+import com.lifeguardian.lifeguardian.utils.MqttConnection;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.*;
 import jakarta.mail.MessagingException;
 import jakarta.ws.rs.core.Context;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
 
 @ApplicationScoped
 @Path("user")
@@ -392,6 +396,50 @@ public class UserResources {
         }
 
     }
+    @Path("/getMeasure")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMeasure(@Context HttpHeaders headers) {
+        String authHeader = headers.getRequestHeader("Authorization").get(0);
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring("Bearer ".length());
+
+            // Decode the token to get the current user's details
+            Map<String, String> currentUser = commonServiceImpl.getCurrentUser(token);
+
+            String username = currentUser.get("username");
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
+            // Retrieve the shared instance of MqttConnection
+            MqttConnection mqttConnection = CDI.current().select(MqttConnection.class).get();
+            MqttClient mqttClient = mqttConnection.getClient(); // Assuming getClient() returns the connected MqttClient instance
+
+            // Construct the message to start measurement
+            JsonObject startMeasurementMessage = Json.createObjectBuilder()
+                    .add("username", username)
+                    .add("message", "start")
+                    .build();
+
+            try {
+                // Publish the message to the topic the ESP32 is subscribed to
+                String mqttTopic = "start"; // This is the topic your ESP32 listens to for commands
+                mqttConnection.sendMessage(mqttClient, startMeasurementMessage.toString(), mqttTopic);
+
+                // Return a response indicating the request was successful
+                return Response.ok().entity("Measurement started for user: " + username).build();
+            } catch (MqttException e) {
+                // Handle the exception (e.g., the MQTT broker is not reachable)
+                e.printStackTrace();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Failed to send MQTT message").build();
+            }
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("No valid authorization token provided").build();
+        }
+    }
+
 }
 //
 

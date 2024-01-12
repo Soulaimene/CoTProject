@@ -1,5 +1,5 @@
 
-const baseURL = window.location.protocol + "//" + window.location.hostname + "//"
+const baseURL = window.location.protocol + "//" + window.location.hostname + ":8080/"
 
 document.addEventListener('DOMContentLoaded', function () {
     const username = document.getElementById("username");

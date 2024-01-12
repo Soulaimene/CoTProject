@@ -1,6 +1,6 @@
 
-const baseURL = window.location.protocol + "//" + window.location.hostname+ "/" +
-    "/"
+const baseURL = window.location.protocol + "//" + window.location.hostname +
+    ":8080/"
 
 
 const setup = () => {
@@ -57,7 +57,7 @@ const setup = () => {
                 inviteButton.classList.add('bg-gray-500'); // Add gray background
                 inviteButton.disabled = true; // Make the button not clickable
             } else {
-                inviteButton.classList.add('bg-blue-500', 'hover:bg-blue-700'); // Add blue background
+                inviteButton.classList.add('bg-blue-500', 'hover:bg-blue-700','focus:bg-blue-700'); // Add blue background
                 inviteButton.onclick = function () {
                     // Get the doctor's name from the nameSpan
                     const doctorUsername = doctor;
@@ -558,10 +558,13 @@ const setup = () => {
             method: 'POST',
             headers: headers,
         })
-            .then(response => {
+            .then(async response => {
                 if (response.ok) {
+                    data = await response.text();
+                    console.log(data);
+
                     // Request was successful
-                    return response.json();
+                    return data;
                 } else {
                     // Handle error response
                     return response.text().then(errorMessage => {
@@ -578,6 +581,68 @@ const setup = () => {
                 console.error('Error sending email:', error);
             });
     }
+    async function getMeasures() {
+        try {
+            const response = await fetch(`${baseURL}api/user/getMeasure/`, {
+                method: 'POST',
+                headers: headers,
+            });
+
+            // Attempt to read the response as JSON first
+            let data;
+            const contentType = response.headers.get('content-type');
+
+            // If the response is not JSON, read it as text
+            data = await response.text();
+
+
+            if (response.ok) {
+                console.log('Measurement started:', data);
+                // Perform actions based on the successful start of measurement
+            } else {
+                // The server responded with a status code that indicates failure
+                console.error('Error getting measures:', data);
+                // Update the UI to notify the user about the error
+            }
+        } catch (error) {
+            // There was an error during the fetch request
+            console.error('Fetch error:', error);
+            // Update the UI to notify the user that there was a network error
+        }
+    }
+
+
+
+
+
+    const webSocket = new WebSocket("wss://lifeguardian1.me:8083/mqtt");
+
+    webSocket.onopen = function(event) {
+        console.log("Connected to WebSocket");
+    };
+
+    webSocket.onmessage = async function (event) {
+
+        console.log("Received message: " + event.data);
+
+
+        // Parse the incoming data and update the sensor display
+        const sensorData = JSON.parse(event.data);
+        displaySensorData(sensorData);
+        updateHealthStatus(sensorData.apHi, sensorData.saturationData, sensorData.heartRateData);
+        // handle incoming message
+    };
+
+    webSocket.onclose = function(event) {
+        console.log("WebSocket connection closed");
+    };
+
+    webSocket.onerror = function(error) {
+        console.error("WebSocket error: ", error);
+    };
+
+
+
 
 
 
@@ -611,10 +676,15 @@ const setup = () => {
     document.getElementById('close-sidebar').addEventListener('click', function() {
         document.getElementById('sidebar').classList.remove('sidebar-open');
     });
+    document.getElementById('get-measure-button').addEventListener('click', function() {
+            console.log('get_measure_clicked!');
+        getMeasures();
+    });
 
 
 
 // Initialize the sidebar setup when the DOM is fully loaded
+
 }
 // Initialize the setup when the script loads
 const dashboard = setup();
