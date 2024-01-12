@@ -76,14 +76,8 @@ jobs:
           
           # Create a tar archive of the mlops directory
           tar -czf /tmp/mlops.tar.gz -C ./code mlops
-      
-          # Copy the tar archive to the GCP VM
           gcloud compute scp /tmp/mlops.tar.gz soulaimeneturki@cotproject:/tmp/mlops.tar.gz --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
-      
-          # Extract the tar archive on the GCP VM
-          gcloud compute ssh soulaimeneturki@cotproject --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --command "tar -xzf /tmp/mlops.tar.gz -C /opt/wildfly/"
-      
-          # Clean up temporary files
+          gcloud compute ssh soulaimeneturki@34.16.175.158 --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --command "tar -xzf /tmp/mlops.tar.gz -C /opt/wildfly/"
           rm /tmp/gcp_vm_ssh_private_key /tmp/gcp_vm_ssh_private_key.pub /tmp/mlops.tar.gz
 
   
