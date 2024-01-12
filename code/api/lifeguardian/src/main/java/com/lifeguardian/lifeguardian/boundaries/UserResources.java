@@ -273,9 +273,8 @@ public class UserResources {
 //                String CotProjectPath = System.getenv("CotProjectPath");
 //
 //
-//                System.out.println("Python path: " +pythonPath);
 //
-//                String jsonString = constructPredictionJson(healthData, sensorsData).replace("\"", "\\\"");
+//                String jsonString = constructPredictionJson(healthData, sensorsData)
 //                System.out.println("Prediction JSON String Data: " +jsonString);
 //
 //
