@@ -59,20 +59,10 @@ jobs:
 
       - name: Copy mlops Directory to /opt/wildfly/
         run: |
-            echo "${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}" > /tmp/gcp_vm_ssh_private_key
-            echo "${{ secrets.GCP_VM_SSH_PUBLIC_KEY }}" > /tmp/gcp_vm_ssh_private_key.pub
-            chmod 600 /tmp/gcp_vm_ssh_private_key
-            chmod 644 /tmp/gcp_vm_ssh_private_key.pub
+          echo "${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}" > /tmp/gcp_vm_ssh_private_key
+          echo "${{ secrets.GCP_VM_SSH_PUBLIC_KEY }}" > /tmp/gcp_vm_ssh_private_key.pub
+          chmod 600 /tmp/gcp_vm_ssh_private_key
+          chmod 644 /tmp/gcp_vm_ssh_private_key.pub
+          gcloud compute scp -r ./code/mlops soulaimeneturki@cotproject:/opt/wildfly/ --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
+  
             
-            # Create a tar archive of the mlops directory
-            tar -czf /tmp/mlops.tar.gz -C ./code mlops
-        
-            # Copy the tar archive to the GCP VM
-            scp -i /tmp/gcp_vm_ssh_private_key /tmp/mlops.tar.gz soulaimeneturki@cotproject:/tmp/mlops.tar.gz
-        
-            # Extract the tar archive on the GCP VM
-            ssh -i /tmp/gcp_vm_ssh_private_key soulaimeneturki@cotproject "tar -xzf /tmp/mlops.tar.gz -C /opt/wildfly/"
-        
-            # Clean up temporary files
-            rm /tmp/gcp_vm_ssh_private_key /tmp/gcp_vm_ssh_private_key.pub /tmp/mlops.tar.gz
-          
