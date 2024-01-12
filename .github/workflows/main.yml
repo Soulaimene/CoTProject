@@ -52,21 +52,23 @@ jobs:
       - name: Copy War File to Deployments Folder
         run: |
           echo "${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}" > /tmp/gcp_vm_ssh_private_key
-          echo "${{ secrets.GCP_VM_SSH_PUBLIC_KEY }}" > /tmp/gcp_vm_ssh_private_key.pub  # Ensure you have this secret set up
+          echo "${{ secrets.GCP_VM_SSH_PUBLIC_KEY }}" > /tmp/gcp_vm_ssh_private_key.pub
           chmod 600 /tmp/gcp_vm_ssh_private_key
           chmod 644 /tmp/gcp_vm_ssh_private_key.pub
           gcloud compute scp ./code/api/lifeguardian/target/*.war soulaimeneturki@cotproject:/opt/wildfly/standalone/deployments --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
 
-      - name: Debugging Files and Permissions
-        run: |
-          ls -al ./code/mlops
-          id
-        
-      - name: Set Permissions for mlops Directory (Temporary)
-        run: |
-            chmod -R 777 ./code/mlops
-            ls -al ./code/mlops
-        
+      - name: Check Files and Directories Ownership
+        run: ls -l ./code/mlops
+
+      - name: Change Ownership of mlops Directory
+        run: sudo chown -R $(whoami) ./code/mlops
+
+      - name: Set Permissions for mlops Directory
+        run: chmod -R 777 ./code/mlops
+
+      - name: Create a tar Archive of the mlops Directory
+        run: tar -czf /tmp/mlops.tar.gz -C ./code mlops
+
       - name: Copy mlops Directory to /opt/wildfly/
         run: |
             echo "${{ secrets.GCP_VM_SSH_PRIVATE_KEY }}" > /tmp/gcp_vm_ssh_private_key
@@ -74,11 +76,19 @@ jobs:
             chmod 600 /tmp/gcp_vm_ssh_private_key
             chmod 644 /tmp/gcp_vm_ssh_private_key.pub
             
-            # Create a tar archive of the mlops directory
-            tar -czf /tmp/mlops.tar.gz -C ./code mlops
             gcloud compute scp /tmp/mlops.tar.gz soulaimeneturki@cotproject:/tmp/mlops.tar.gz --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --quiet
             gcloud compute ssh soulaimeneturki@cotproject --zone=us-west4-b --project=carbide-oarlock-356612 --ssh-key-file=/tmp/gcp_vm_ssh_private_key --command "tar -xzf /tmp/mlops.tar.gz -C /opt/wildfly/"
             rm /tmp/gcp_vm_ssh_private_key /tmp/gcp_vm_ssh_private_key.pub /tmp/mlops.tar.gz
-
-  
-            
+            shell: /usr/bin/bash -e {0}
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/21.0.1-12.0.LTS/x64
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/CoTProject/CoTProject/gha-creds-a7cfde4b630178d3.json
+          GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/CoTProject/CoTProject/gha-creds-a7cfde4b630178d3.json
+          GOOGLE_GHA_CREDS_PATH: /home/runner/work/CoTProject/CoTProject/gha-creds-a7cfde4b630178d3.json
+          CLOUDSDK_CORE_PROJECT: carbide-oarlock-356612
+          CLOUDSDK_PROJECT: carbide-oarlock-356612
+          GCLOUD_PROJECT: carbide-oarlock-356612
+          GCP_PROJECT: carbide-oarlock-356612
+          GOOGLE_CLOUD_PROJECT: carbide-oarlock-356612
+          CLOUDSDK_METRICS_ENVIRONMENT: github-actions-setup-gcloud
+          CLOUDSDK_METRICS_ENVIRONMENT_VERSION: 1.1.1
